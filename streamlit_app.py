@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 st.set_page_config(
-    page_title="⚽ School Tournament",
+    page_title="⚽ School Football Tournament",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -29,12 +29,12 @@ def load_data():
             return json.load(f)
     return {
         "equipos": [
-            {"id": 1, "nombre": "10.1 + 10.8", "escudo": "🦅"},
-            {"id": 2, "nombre": "10.3 + 10.5", "escudo": "🦁"},
-            {"id": 3, "nombre": "10.6", "escudo": "🐯"},
-            {"id": 4, "nombre": "10.7", "escudo": "🦊"},
-            {"id": 5, "nombre": "10.9", "escudo": "🦈"},
-            {"id": 6, "nombre": "10.10", "escudo": "🐻"},
+            {"id": 1, "nombre": "(10.1 + 10.8)", "escudo": "🦅"},
+            {"id": 2, "nombre": "(10.3 + 10.5)", "escudo": "🦁"},
+            {"id": 3, "nombre": "(10.6)", "escudo": "🐯"},
+            {"id": 4, "nombre": "(10.7)", "escudo": "🦊"},
+            {"id": 5, "nombre": "(10.9)", "escudo": "🦈"},
+            {"id": 6, "nombre": "(10.10)", "escudo": "🐻"},
         ],
         "jugadores": [],
         "partidos": []
@@ -98,7 +98,7 @@ def obtener_nombre_equipo(data, equipo_id):
 
 data = load_data()
 
-st.markdown("<div class='title-big'>⚽ SCHOOL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
+st.markdown("<div class='title-big'>⚽ SCHOOL FOOTBALL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 Let the battle begin! 🔥</p>", unsafe_allow_html=True)
 
 st.sidebar.markdown("### 🎮 CONTROL MENU")
@@ -556,4 +556,4 @@ elif opcion == "📅 Fixtures":
         st.dataframe(df_resumen, use_container_width=True, hide_index=True)
 
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ School Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ School Football Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)

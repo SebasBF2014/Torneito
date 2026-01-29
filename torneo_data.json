@@ -2,32 +2,32 @@
   "equipos": [
     {
       "id": 1,
-      "nombre": "10.1 + 10.8",
+      "nombre": "(10.1 + 10.8)",
       "escudo": "🦅"
     },
     {
       "id": 2,
-      "nombre": "10.3 + 10.5",
+      "nombre": "(10.3 + 10.5)",
       "escudo": "🦁"
     },
     {
       "id": 3,
-      "nombre": "10.6",
+      "nombre": "(10.6)",
       "escudo": "🐯"
     },
     {
       "id": 4,
-      "nombre": "10.7",
+      "nombre": "(10.7)",
       "escudo": "🦊"
     },
     {
       "id": 5,
-      "nombre": "10.9",
+      "nombre": "(10.9)",
       "escudo": "🦈"
     },
     {
       "id": 6,
-      "nombre": "10.10",
+      "nombre": "(10.10)",
       "escudo": "🐻"
     }
   ],
