@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 st.set_page_config(
-    page_title="⚽ School Football Tournament",
+    page_title="⚽ Year 10 Football Tournament",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -98,7 +98,7 @@ def obtener_nombre_equipo(data, equipo_id):
 
 data = load_data()
 
-st.markdown("<div class='title-big'>⚽ SCHOOL FOOTBALL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
+st.markdown("<div class='title-big'>⚽ YEAR 10 FOOTBALL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 Let the battle begin! 🔥</p>", unsafe_allow_html=True)
 
 st.sidebar.markdown("### 🎮 CONTROL MENU")
@@ -556,4 +556,4 @@ elif opcion == "📅 Fixtures":
         st.dataframe(df_resumen, use_container_width=True, hide_index=True)
 
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ School Football Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ Year 10 Football Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
