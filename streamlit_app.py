@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 st.set_page_config(
-    page_title="⚽ Torneito Escolar",
+    page_title="⚽ School Tournament",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -94,44 +94,44 @@ def obtener_nombre_equipo(data, equipo_id):
     for equipo in data["equipos"]:
         if equipo["id"] == equipo_id:
             return equipo["nombre"]
-    return "Equipo desconocido"
+    return "Unknown Team"
 
 data = load_data()
 
-st.markdown("<div class='title-big'>⚽ TORNEITO ESCOLAR ⚽</div>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 ¡Que comience la batalla! 🔥</p>", unsafe_allow_html=True)
+st.markdown("<div class='title-big'>⚽ SCHOOL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 Let the battle begin! 🔥</p>", unsafe_allow_html=True)
 
-st.sidebar.markdown("### 🎮 MENÚ DE CONTROL")
+st.sidebar.markdown("### 🎮 CONTROL MENU")
 opcion = st.sidebar.radio(
-    "¿Qué deseas hacer?",
-    ["📊 Tabla General", "➕ Registrar Partido", "🏆 Equipos", "👥 Jugadores", "📋 Historial de Partidos"],
+    "What would you like to do?",
+    ["📊 Standings", "➕ Register Match", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures"],
     key="menu"
 )
 
-if opcion == "📊 Tabla General":
-    st.header("📊 TABLA GENERAL")
+if opcion == "📊 Standings":
+    st.header("📊 STANDINGS")
     
     stats = calcular_estadisticas(data)
     
     tabla_data = []
     for equipo_id, stat in stats.items():
         tabla_data.append({
-            "Posición": 0,
-            "⚽ Equipo": f"{stat['escudo']} {stat['nombre']}",
-            "PJ": stat["partidos"],
-            "G": stat["ganados"],
-            "E": stat["empatados"],
-            "P": stat["perdidos"],
+            "Position": 0,
+            "⚽ Team": f"{stat['escudo']} {stat['nombre']}",
+            "MP": stat["partidos"],
+            "W": stat["ganados"],
+            "D": stat["empatados"],
+            "L": stat["perdidos"],
             "GF": stat["goles_favor"],
-            "GC": stat["goles_contra"],
-            "DG": stat["goles_favor"] - stat["goles_contra"],
+            "GA": stat["goles_contra"],
+            "GD": stat["goles_favor"] - stat["goles_contra"],
             "🏅 Pts": stat["puntos"]
         })
     
-    tabla_data.sort(key=lambda x: (x["🏅 Pts"], x["DG"]), reverse=True)
+    tabla_data.sort(key=lambda x: (x["🏅 Pts"], x["GD"]), reverse=True)
     
     for i, row in enumerate(tabla_data, 1):
-        row["Posición"] = f"{i}º" if i <= 3 else str(i)
+        row["Position"] = f"{i}º" if i <= 3 else str(i)
     
     df_tabla = pd.DataFrame(tabla_data)
     
@@ -143,28 +143,28 @@ if opcion == "📊 Tabla General":
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("⚽ Total de Partidos", len(data["partidos"]))
+        st.metric("⚽ Total Matches", len(data["partidos"]))
     with col2:
         total_goles = sum(p["goles1"] + p["goles2"] for p in data["partidos"])
-        st.metric("🎯 Total de Goles", total_goles)
+        st.metric("🎯 Total Goals", total_goles)
     with col3:
-        st.metric("🏆 Equipos Participantes", len(data["equipos"]))
+        st.metric("🏆 Participating Teams", len(data["equipos"]))
 
-elif opcion == "➕ Registrar Partido":
-    st.header("➕ REGISTRAR NUEVO PARTIDO")
-    st.markdown("Ingresa los datos del partido jugado:")
+elif opcion == "➕ Register Match":
+    st.header("➕ REGISTER NEW MATCH")
+    st.markdown("Enter the match details:")
     
     col1, col2 = st.columns(2)
     
     with col1:
         equipo1 = st.selectbox(
-            "🏠 Equipo 1",
+            "🏠 Team 1",
             options=[e["id"] for e in data["equipos"]],
             format_func=lambda x: obtener_nombre_equipo(data, x),
             key="equipo1"
         )
         goles1 = st.number_input(
-            "Goles Equipo 1",
+            "Goals Team 1",
             min_value=0,
             max_value=20,
             key="goles1"
@@ -172,26 +172,26 @@ elif opcion == "➕ Registrar Partido":
     
     with col2:
         equipo2 = st.selectbox(
-            "🏃 Equipo 2",
+            "🏃 Team 2",
             options=[e["id"] for e in data["equipos"]],
             format_func=lambda x: obtener_nombre_equipo(data, x),
             key="equipo2"
         )
         goles2 = st.number_input(
-            "Goles Equipo 2",
+            "Goals Team 2",
             min_value=0,
             max_value=20,
             key="goles2"
         )
     
-    fecha = st.date_input("📅 Fecha del Partido", value=datetime.now())
+    fecha = st.date_input("📅 Match Date", value=datetime.now())
     
     st.markdown("---")
-    st.markdown(f"### 📋 Vista Previa: {obtener_nombre_equipo(data, equipo1)} **{goles1} - {goles2}** {obtener_nombre_equipo(data, equipo2)}")
+    st.markdown(f"### 📋 Preview: {obtener_nombre_equipo(data, equipo1)} **{goles1} - {goles2}** {obtener_nombre_equipo(data, equipo2)}")
     
-    if st.button("✅ GUARDAR PARTIDO", use_container_width=True, type="primary"):
+    if st.button("✅ SAVE MATCH", use_container_width=True, type="primary"):
         if equipo1 == equipo2:
-            st.error("❌ ¡Los equipos deben ser diferentes!")
+            st.error("❌ Teams must be different!")
         else:
             nuevo_partido = {
                 "equipo1_id": equipo1,
@@ -202,32 +202,32 @@ elif opcion == "➕ Registrar Partido":
             }
             data["partidos"].append(nuevo_partido)
             save_data(data)
-            st.success(f"🎉 ¡Partido registrado exitosamente! {obtener_nombre_equipo(data, equipo1)} {goles1} - {goles2} {obtener_nombre_equipo(data, equipo2)}")
+            st.success(f"🎉 Match registered successfully! {obtener_nombre_equipo(data, equipo1)} {goles1} - {goles2} {obtener_nombre_equipo(data, equipo2)}")
             st.balloons()
             st.rerun()
 
-elif opcion == "🏆 Equipos":
-    st.header("🏆 EQUIPOS PARTICIPANTES")
+elif opcion == "🏆 Teams":
+    st.header("🏆 PARTICIPATING TEAMS")
     
     col1, col2 = st.columns([3, 1])
     with col2:
-        if st.button("➕ Agregar Equipo", use_container_width=True):
+        if st.button("➕ Add Team", use_container_width=True):
             st.session_state.show_form = True
     
     if st.session_state.get("show_form", False):
         st.markdown("---")
         col1, col2 = st.columns(2)
         with col1:
-            nombre_equipo = st.text_input("Nombre del Equipo")
+            nombre_equipo = st.text_input("Team Name")
         with col2:
             escudo = st.selectbox(
-                "Escudo/Emoji",
+                "Shield/Emoji",
                 ["🦅", "🦁", "🐯", "🦊", "🦈", "🐻", "🐶", "🦬", "🐑", "🦏"]
             )
         
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("✅ Guardar"):
+            if st.button("✅ Save"):
                 if nombre_equipo:
                     nuevo_id = max([e["id"] for e in data["equipos"]], default=0) + 1
                     data["equipos"].append({
@@ -236,11 +236,11 @@ elif opcion == "🏆 Equipos":
                         "escudo": escudo
                     })
                     save_data(data)
-                    st.success(f"✅ Equipo {escudo} {nombre_equipo} agregado")
+                    st.success(f"✅ Team {escudo} {nombre_equipo} added")
                     st.session_state.show_form = False
                     st.rerun()
         with col2:
-            if st.button("❌ Cancelar"):
+            if st.button("❌ Cancel"):
                 st.session_state.show_form = False
                 st.rerun()
     
@@ -259,32 +259,32 @@ elif opcion == "🏆 Equipos":
                 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("Partidos", stat.get("partidos", 0))
+                    st.metric("Matches", stat.get("partidos", 0))
                 with col2:
-                    st.metric("Puntos", stat.get("puntos", 0))
+                    st.metric("Points", stat.get("puntos", 0))
                 with col3:
-                    st.metric("Goles", stat.get("goles_favor", 0))
+                    st.metric("Goals", stat.get("goles_favor", 0))
                 
-                st.markdown(f"**G:** {stat.get('ganados', 0)} | **E:** {stat.get('empatados', 0)} | **P:** {stat.get('perdidos', 0)}")
+                st.markdown(f"**W:** {stat.get('ganados', 0)} | **D:** {stat.get('empatados', 0)} | **L:** {stat.get('perdidos', 0)}")
 
-elif opcion == "👥 Jugadores":
-    st.header("👥 REGISTRAR JUGADORES")
+elif opcion == "👥 Players":
+    st.header("👥 REGISTER PLAYERS")
     
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.subheader("Agregar Jugador")
+        st.subheader("Add Player")
         
         equipo_sel = st.selectbox(
-            "🏠 Selecciona un equipo",
+            "🏠 Select a team",
             options=[e["id"] for e in data["equipos"]],
             format_func=lambda x: obtener_nombre_equipo(data, x),
             key="equipo_jugador"
         )
         
-        nombre_jugador = st.text_input("Nombre del jugador", placeholder="Ej: Juan Pérez")
-        numero_camiseta = st.number_input("Número de camiseta", min_value=1, max_value=99, step=1)
+        nombre_jugador = st.text_input("Player name", placeholder="Ex: John Smith")
+        numero_camiseta = st.number_input("Jersey number", min_value=1, max_value=99, step=1)
         
-        if st.button("✅ Registrar Jugador", use_container_width=True, type="primary"):
+        if st.button("✅ Register Player", use_container_width=True, type="primary"):
             if nombre_jugador.strip():
                 nuevo_jugador = {
                     "id": len(data["jugadores"]) + 1,
@@ -294,34 +294,33 @@ elif opcion == "👥 Jugadores":
                 }
                 data["jugadores"].append(nuevo_jugador)
                 save_data(data)
-                st.success(f"✅ ¡Jugador {nombre_jugador} registrado en {obtener_nombre_equipo(data, equipo_sel)}!")
+                st.success(f"✅ Player {nombre_jugador} registered in {obtener_nombre_equipo(data, equipo_sel)}!")
                 st.rerun()
             else:
-                st.error("❌ Por favor ingresa el nombre del jugador")
+                st.error("❌ Please enter the player's name")
     
     with col2:
-        st.subheader("Total de Jugadores")
+        st.subheader("Total Players")
         st.metric("👥", len(data["jugadores"]))
     
-    # Mostrar jugadores por equipo
     st.markdown("---")
-    st.subheader("📋 Jugadores Registrados")
+    st.subheader("📋 Registered Players")
     
     if not data["jugadores"]:
-        st.info("📝 Aún no hay jugadores registrados")
+        st.info("📝 No players registered yet")
     else:
         for equipo in data["equipos"]:
             jugadores_equipo = [j for j in data["jugadores"] if j["equipo_id"] == equipo["id"]]
             
             if jugadores_equipo:
-                with st.expander(f"{equipo['escudo']} {equipo['nombre']} ({len(jugadores_equipo)} jugadores)"):
+                with st.expander(f"{equipo['escudo']} {equipo['nombre']} ({len(jugadores_equipo)} players)"):
                     cols = st.columns([2, 1, 1])
                     with cols[0]:
-                        st.write("**Nombre**")
+                        st.write("**Name**")
                     with cols[1]:
-                        st.write("**Camiseta**")
+                        st.write("**Jersey**")
                     with cols[2]:
-                        st.write("**Acciones**")
+                        st.write("**Actions**")
                     
                     st.divider()
                     
@@ -332,17 +331,119 @@ elif opcion == "👥 Jugadores":
                         with col2:
                             st.write(f"#{jugador['numero']}")
                         with col3:
-                            if st.button("❌ Eliminar", key=f"delete_{jugador['id']}", use_container_width=True):
+                            if st.button("❌ Delete", key=f"delete_{jugador['id']}", use_container_width=True):
                                 data["jugadores"].remove(jugador)
                                 save_data(data)
-                                st.success("Jugador eliminado")
+                                st.success("Player deleted")
                                 st.rerun()
 
-elif opcion == "📋 Historial de Partidos":
-    st.header("📋 HISTORIAL DE PARTIDOS")
+elif opcion == "🔮 Predictions":
+    st.header("🔮 MATCH PREDICTIONS")
+    st.markdown("Predict the result of the next match based on team performance 🎯")
+    
+    stats = calcular_estadisticas(data)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        equipo1_pro = st.selectbox(
+            "🏠 Team 1",
+            options=[e["id"] for e in data["equipos"]],
+            format_func=lambda x: obtener_nombre_equipo(data, x),
+            key="equipo1_pro"
+        )
+    
+    with col2:
+        equipo2_pro = st.selectbox(
+            "🏃 Team 2",
+            options=[e["id"] for e in data["equipos"]],
+            format_func=lambda x: obtener_nombre_equipo(data, x),
+            key="equipo2_pro"
+        )
+    
+    if equipo1_pro != equipo2_pro:
+        st.markdown("---")
+        
+        stat1 = stats.get(equipo1_pro, {})
+        stat2 = stats.get(equipo2_pro, {})
+        
+        equipo1_nombre = obtener_nombre_equipo(data, equipo1_pro)
+        equipo2_nombre = obtener_nombre_equipo(data, equipo2_pro)
+        
+        equipo1_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == equipo1_pro), "⚽")
+        equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == equipo2_pro), "⚽")
+        
+        puntos1 = stat1.get("puntos", 0)
+        puntos2 = stat2.get("puntos", 0)
+        
+        gf1 = stat1.get("goles_favor", 0) + 1
+        gf2 = stat2.get("goles_favor", 0) + 1
+        
+        total_puntos = puntos1 + puntos2
+        if total_puntos > 0:
+            prob1 = (puntos1 / total_puntos) * 100
+            prob2 = (puntos2 / total_puntos) * 100
+        else:
+            prob1 = prob2 = 50
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"### {equipo1_emoji} {equipo1_nombre}")
+            st.metric("Points", stat1.get("puntos", 0))
+            st.metric("Avg Goals", round(gf1 / max(stat1.get("partidos", 1), 1), 1))
+            st.metric("Probability", f"{prob1:.1f}%")
+        
+        with col2:
+            st.markdown("### ⚡ PREDICTION")
+            st.subheader("🔮 Forecast")
+            if prob1 > prob2:
+                st.success(f"✅ WINS: {equipo1_emoji} {equipo1_nombre}")
+            elif prob2 > prob1:
+                st.success(f"✅ WINS: {equipo2_emoji} {equipo2_nombre}")
+            else:
+                st.info(f"🤝 DRAW")
+        
+        with col3:
+            st.markdown(f"### {equipo2_emoji} {equipo2_nombre}")
+            st.metric("Points", stat2.get("puntos", 0))
+            st.metric("Avg Goals", round(gf2 / max(stat2.get("partidos", 1), 1), 1))
+            st.metric("Probability", f"{prob2:.1f}%")
+        
+        st.markdown("---")
+        
+        st.subheader("📈 Team Comparison")
+        
+        comparativa = pd.DataFrame({
+            equipo1_nombre: [
+                stat1.get("partidos", 0),
+                stat1.get("ganados", 0),
+                stat1.get("empatados", 0),
+                stat1.get("perdidos", 0),
+                stat1.get("goles_favor", 0),
+                stat1.get("goles_contra", 0)
+            ],
+            equipo2_nombre: [
+                stat2.get("partidos", 0),
+                stat2.get("ganados", 0),
+                stat2.get("empatados", 0),
+                stat2.get("perdidos", 0),
+                stat2.get("goles_favor", 0),
+                stat2.get("goles_contra", 0)
+            ]
+        }, index=["Matches Played", "Wins", "Draws", "Losses", "Goals For", "Goals Against"])
+        
+        st.dataframe(comparativa, use_container_width=True)
+        
+        st.markdown("**Note:** This prediction is based on the teams' historical performance. Football always has surprises! ⚽")
+    else:
+        st.error("❌ You must select two different teams")
+
+elif opcion == "📋 Match History":
+    st.header("📋 MATCH HISTORY")
     
     if not data["partidos"]:
-        st.info("📝 Aún no hay partidos registrados. ¡Registra el primero!")
+        st.info("📝 No matches registered yet. Register the first one!")
     else:
         partidos_ordenados = sorted(data["partidos"], key=lambda x: x["fecha"], reverse=True)
         
@@ -370,5 +471,89 @@ elif opcion == "📋 Historial de Partidos":
             
             st.divider()
 
+elif opcion == "📅 Fixtures":
+    st.header("📅 MATCH CALENDAR")
+    st.markdown("📋 **Schedule of all matches throughout the tournament**")
+    
+    if not data["partidos"]:
+        st.info("📝 No matches registered yet. The calendar will be populated as matches are added!")
+    else:
+        from datetime import datetime as dt
+        
+        partidos_ordenados = sorted(data["partidos"], key=lambda x: x["fecha"])
+        
+        # Group by date
+        fechas_dict = {}
+        for partido in partidos_ordenados:
+            fecha = partido["fecha"]
+            if fecha not in fechas_dict:
+                fechas_dict[fecha] = []
+            fechas_dict[fecha].append(partido)
+        
+        # Display calendar
+        for fecha in sorted(fechas_dict.keys()):
+            try:
+                fecha_obj = dt.strptime(fecha, "%Y-%m-%d")
+                fecha_formateada = fecha_obj.strftime("%A, %B %d, %Y")
+            except:
+                fecha_formateada = fecha
+            
+            st.subheader(f"📅 {fecha_formateada}")
+            
+            for partido in fechas_dict[fecha]:
+                equipo1_id = partido["equipo1_id"]
+                equipo2_id = partido["equipo2_id"]
+                goles1 = partido["goles1"]
+                goles2 = partido["goles2"]
+                
+                equipo1_nombre = obtener_nombre_equipo(data, equipo1_id)
+                equipo2_nombre = obtener_nombre_equipo(data, equipo2_id)
+                
+                equipo1_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == equipo1_id), "⚽")
+                equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == equipo2_id), "⚽")
+                
+                # Determine result
+                if goles1 > goles2:
+                    resultado = f"✅ {equipo1_emoji} WINS"
+                elif goles2 > goles1:
+                    resultado = f"✅ {equipo2_emoji} WINS"
+                else:
+                    resultado = "🤝 DRAW"
+                
+                col1, col2, col3, col4 = st.columns([2, 1, 2, 1])
+                
+                with col1:
+                    st.markdown(f"**{equipo1_emoji} {equipo1_nombre}**")
+                
+                with col2:
+                    st.markdown(f"<p style='text-align: center; font-size: 1.3rem; font-weight: bold;'>{goles1} - {goles2}</p>", unsafe_allow_html=True)
+                
+                with col3:
+                    st.markdown(f"**{equipo2_emoji} {equipo2_nombre}**")
+                
+                with col4:
+                    st.markdown(f"<p style='text-align: center;'>{resultado}</p>", unsafe_allow_html=True)
+                
+                st.divider()
+        
+        st.markdown("---")
+        
+        # Statistics by date
+        st.subheader("📊 Fixtures Summary")
+        
+        resumen = []
+        for fecha in sorted(fechas_dict.keys()):
+            partidos_fecha = fechas_dict[fecha]
+            total_goles = sum(p["goles1"] + p["goles2"] for p in partidos_fecha)
+            resumen.append({
+                "📅 Date": fecha,
+                "🎮 Matches": len(partidos_fecha),
+                "⚽ Total Goals": total_goles,
+                "Avg Goals/Match": round(total_goles / len(partidos_fecha), 1)
+            })
+        
+        df_resumen = pd.DataFrame(resumen)
+        st.dataframe(df_resumen, use_container_width=True, hide_index=True)
+
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ Torneito Escolar v1.0 - ¡Que gane el mejor equipo! 🏆</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ School Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
