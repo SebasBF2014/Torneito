@@ -471,7 +471,7 @@ elif opcion == "📅 Fixtures":
                 
                 # Determine result
                 if estado == "pending" or goles1 is None or goles2 is None:
-                    resultado = "⏳ TBD"
+                    resultado = "⏳ Pendiente"
                     score_display = "? - ?"
                 elif goles1 > goles2:
                     resultado = f"✅ {equipo1_emoji} WINS"
