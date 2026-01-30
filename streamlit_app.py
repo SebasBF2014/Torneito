@@ -148,9 +148,10 @@ if opcion == "📊 Standings":
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("⚽ Total Matches", len(data["partidos"]))
+        partidos_jugados = [p for p in data["partidos"] if p.get("estado", "played") == "played" and p["goles1"] is not None and p["goles2"] is not None]
+        st.metric("⚽ Matches Played", len(partidos_jugados))
     with col2:
-        total_goles = sum(p["goles1"] + p["goles2"] for p in data["partidos"])
+        total_goles = sum(p["goles1"] + p["goles2"] for p in partidos_jugados)
         st.metric("🎯 Total Goals", total_goles)
     with col3:
         st.metric("🏆 Participating Teams", len(data["equipos"]))
