@@ -104,7 +104,7 @@ st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥
 st.sidebar.markdown("### 🎮 CONTROL MENU")
 opcion = st.sidebar.radio(
     "What would you like to do?",
-    ["📊 Standings", "➕ Register Match", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures"],
+    ["📊 Standings", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures"],
     key="menu"
 )
 
@@ -149,62 +149,6 @@ if opcion == "📊 Standings":
         st.metric("🎯 Total Goals", total_goles)
     with col3:
         st.metric("🏆 Participating Teams", len(data["equipos"]))
-
-elif opcion == "➕ Register Match":
-    st.header("➕ REGISTER NEW MATCH")
-    st.markdown("Enter the match details:")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        equipo1 = st.selectbox(
-            "🏠 Team 1",
-            options=[e["id"] for e in data["equipos"]],
-            format_func=lambda x: obtener_nombre_equipo(data, x),
-            key="equipo1"
-        )
-        goles1 = st.number_input(
-            "Goals Team 1",
-            min_value=0,
-            max_value=20,
-            key="goles1"
-        )
-    
-    with col2:
-        equipo2 = st.selectbox(
-            "🏃 Team 2",
-            options=[e["id"] for e in data["equipos"]],
-            format_func=lambda x: obtener_nombre_equipo(data, x),
-            key="equipo2"
-        )
-        goles2 = st.number_input(
-            "Goals Team 2",
-            min_value=0,
-            max_value=20,
-            key="goles2"
-        )
-    
-    fecha = st.date_input("📅 Match Date", value=datetime.now())
-    
-    st.markdown("---")
-    st.markdown(f"### 📋 Preview: {obtener_nombre_equipo(data, equipo1)} **{goles1} - {goles2}** {obtener_nombre_equipo(data, equipo2)}")
-    
-    if st.button("✅ SAVE MATCH", use_container_width=True, type="primary"):
-        if equipo1 == equipo2:
-            st.error("❌ Teams must be different!")
-        else:
-            nuevo_partido = {
-                "equipo1_id": equipo1,
-                "equipo2_id": equipo2,
-                "goles1": int(goles1),
-                "goles2": int(goles2),
-                "fecha": str(fecha)
-            }
-            data["partidos"].append(nuevo_partido)
-            save_data(data)
-            st.success(f"🎉 Match registered successfully! {obtener_nombre_equipo(data, equipo1)} {goles1} - {goles2} {obtener_nombre_equipo(data, equipo2)}")
-            st.balloons()
-            st.rerun()
 
 elif opcion == "🏆 Teams":
     st.header("🏆 PARTICIPATING TEAMS")
