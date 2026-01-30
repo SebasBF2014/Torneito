@@ -121,6 +121,146 @@
       "goles1": 2,
       "goles2": 2,
       "fecha": "2026-01-29"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 4,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-05"
+    },
+    {
+      "equipo1_id": 3,
+      "equipo2_id": 6,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-05"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 6,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-12"
+    },
+    {
+      "equipo1_id": 2,
+      "equipo2_id": 4,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-12"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-26"
+    },
+    {
+      "equipo1_id": 2,
+      "equipo2_id": 3,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-02-26"
+    },
+    {
+      "equipo1_id": 4,
+      "equipo2_id": 6,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-05"
+    },
+    {
+      "equipo1_id": 3,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-05"
+    },
+    {
+      "equipo1_id": 2,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-12"
+    },
+    {
+      "equipo1_id": 4,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-12"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 2,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-26"
+    },
+    {
+      "equipo1_id": 6,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-03-26"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 3,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-02"
+    },
+    {
+      "equipo1_id": 2,
+      "equipo2_id": 4,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-02"
+    },
+    {
+      "equipo1_id": 3,
+      "equipo2_id": 6,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-09"
+    },
+    {
+      "equipo1_id": 4,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-09"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 6,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-16"
+    },
+    {
+      "equipo1_id": 2,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-16"
+    },
+    {
+      "equipo1_id": 3,
+      "equipo2_id": 4,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-23"
+    },
+    {
+      "equipo1_id": 1,
+      "equipo2_id": 5,
+      "goles1": 0,
+      "goles2": 0,
+      "fecha": "2026-04-23"
     }
   ]
 }
