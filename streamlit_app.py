@@ -65,6 +65,11 @@ def calcular_estadisticas(data):
         equipo2_id = partido["equipo2_id"]
         goles1 = partido["goles1"]
         goles2 = partido["goles2"]
+        estado = partido.get("estado", "played")
+        
+        # Solo contar partidos jugados en estadísticas
+        if estado == "pending" or goles1 is None or goles2 is None:
+            continue
         
         stats[equipo1_id]["partidos"] += 1
         stats[equipo1_id]["goles_favor"] += goles1
@@ -391,29 +396,35 @@ elif opcion == "📋 Match History":
     else:
         partidos_ordenados = sorted(data["partidos"], key=lambda x: x["fecha"], reverse=True)
         
-        for idx, partido in enumerate(partidos_ordenados, 1):
-            equipo1_nombre = obtener_nombre_equipo(data, partido["equipo1_id"])
-            equipo2_nombre = obtener_nombre_equipo(data, partido["equipo2_id"])
-            goles1 = partido["goles1"]
-            goles2 = partido["goles2"]
-            
-            if goles1 > goles2:
-                emoji_resultado = "🥅"
-            elif goles2 > goles1:
-                emoji_resultado = "😢"
-            else:
-                emoji_resultado = "🤝"
-            
-            col1, col2 = st.columns([3, 1])
-            
-            with col1:
-                st.markdown(f"**{idx}.** {equipo1_nombre} **{goles1} - {goles2}** {equipo2_nombre}")
-                st.caption(f"📅 {partido['fecha']}")
-            
-            with col2:
-                st.markdown(f"<p style='text-align: center; font-size: 1.5rem;'>{emoji_resultado}</p>", unsafe_allow_html=True)
-            
-            st.divider()
+        # Filter only played matches
+        partidos_jugados = [p for p in partidos_ordenados if p.get("estado", "played") == "played" and p["goles1"] is not None and p["goles2"] is not None]
+        
+        if not partidos_jugados:
+            st.info("📝 No matches played yet.")
+        else:
+            for idx, partido in enumerate(partidos_jugados, 1):
+                equipo1_nombre = obtener_nombre_equipo(data, partido["equipo1_id"])
+                equipo2_nombre = obtener_nombre_equipo(data, partido["equipo2_id"])
+                goles1 = partido["goles1"]
+                goles2 = partido["goles2"]
+                
+                if goles1 > goles2:
+                    emoji_resultado = "🥅"
+                elif goles2 > goles1:
+                    emoji_resultado = "😢"
+                else:
+                    emoji_resultado = "🤝"
+                
+                col1, col2 = st.columns([3, 1])
+                
+                with col1:
+                    st.markdown(f"**{idx}.** {equipo1_nombre} **{goles1} - {goles2}** {equipo2_nombre}")
+                    st.caption(f"📅 {partido['fecha']}")
+                
+                with col2:
+                    st.markdown(f"<p style='text-align: center; font-size: 1.5rem;'>{emoji_resultado}</p>", unsafe_allow_html=True)
+                
+                st.divider()
 
 elif opcion == "📅 Fixtures":
     st.header("📅 MATCH CALENDAR")
@@ -449,6 +460,7 @@ elif opcion == "📅 Fixtures":
                 equipo2_id = partido["equipo2_id"]
                 goles1 = partido["goles1"]
                 goles2 = partido["goles2"]
+                estado = partido.get("estado", "played")
                 
                 equipo1_nombre = obtener_nombre_equipo(data, equipo1_id)
                 equipo2_nombre = obtener_nombre_equipo(data, equipo2_id)
@@ -457,12 +469,18 @@ elif opcion == "📅 Fixtures":
                 equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == equipo2_id), "⚽")
                 
                 # Determine result
-                if goles1 > goles2:
+                if estado == "pending" or goles1 is None or goles2 is None:
+                    resultado = "⏳ TBD"
+                    score_display = "? - ?"
+                elif goles1 > goles2:
                     resultado = f"✅ {equipo1_emoji} WINS"
+                    score_display = f"{goles1} - {goles2}"
                 elif goles2 > goles1:
                     resultado = f"✅ {equipo2_emoji} WINS"
+                    score_display = f"{goles1} - {goles2}"
                 else:
                     resultado = "🤝 DRAW"
+                    score_display = f"{goles1} - {goles2}"
                 
                 col1, col2, col3, col4 = st.columns([2, 1, 2, 1])
                 
@@ -470,7 +488,7 @@ elif opcion == "📅 Fixtures":
                     st.markdown(f"**{equipo1_emoji} {equipo1_nombre}**")
                 
                 with col2:
-                    st.markdown(f"<p style='text-align: center; font-size: 1.3rem; font-weight: bold;'>{goles1} - {goles2}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='text-align: center; font-size: 1.3rem; font-weight: bold;'>{score_display}</p>", unsafe_allow_html=True)
                 
                 with col3:
                     st.markdown(f"**{equipo2_emoji} {equipo2_nombre}**")
@@ -488,12 +506,17 @@ elif opcion == "📅 Fixtures":
         resumen = []
         for fecha in sorted(fechas_dict.keys()):
             partidos_fecha = fechas_dict[fecha]
-            total_goles = sum(p["goles1"] + p["goles2"] for p in partidos_fecha)
+            partidos_jugados_fecha = [p for p in partidos_fecha if p.get("estado", "played") == "played" and p["goles1"] is not None and p["goles2"] is not None]
+            total_goles = sum(p["goles1"] + p["goles2"] for p in partidos_jugados_fecha) if partidos_jugados_fecha else 0
+            avg_goles = round(total_goles / len(partidos_jugados_fecha), 1) if partidos_jugados_fecha else 0
+            
             resumen.append({
                 "📅 Date": fecha,
                 "🎮 Matches": len(partidos_fecha),
+                "✅ Played": len(partidos_jugados_fecha),
+                "⏳ Pending": len(partidos_fecha) - len(partidos_jugados_fecha),
                 "⚽ Total Goals": total_goles,
-                "Avg Goals/Match": round(total_goles / len(partidos_fecha), 1)
+                "Avg Goals/Match": avg_goles
             })
         
         df_resumen = pd.DataFrame(resumen)

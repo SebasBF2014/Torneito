@@ -99,168 +99,192 @@
       "equipo2_id": 2,
       "goles1": 0,
       "goles2": 6,
-      "fecha": "2026-01-22"
+      "fecha": "2026-01-22",
+      "estado": "played"
     },
     {
       "equipo1_id": 4,
       "equipo2_id": 3,
       "goles1": 3,
       "goles2": 3,
-      "fecha": "2026-01-22"
+      "fecha": "2026-01-22",
+      "estado": "played"
     },
     {
       "equipo1_id": 3,
       "equipo2_id": 1,
       "goles1": 2,
       "goles2": 3,
-      "fecha": "2026-01-29"
+      "fecha": "2026-01-29",
+      "estado": "played"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 6,
       "goles1": 2,
       "goles2": 2,
-      "fecha": "2026-01-29"
+      "fecha": "2026-01-29",
+      "estado": "played"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 4,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-05"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-05",
+      "estado": "pending"
     },
     {
       "equipo1_id": 3,
       "equipo2_id": 6,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-05"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-05",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 6,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-12"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-12",
+      "estado": "pending"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 4,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-12"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-12",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-26"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-26",
+      "estado": "pending"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 3,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-02-26"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-02-26",
+      "estado": "pending"
     },
     {
       "equipo1_id": 4,
       "equipo2_id": 6,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-05"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-05",
+      "estado": "pending"
     },
     {
       "equipo1_id": 3,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-05"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-05",
+      "estado": "pending"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-12"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-12",
+      "estado": "pending"
     },
     {
       "equipo1_id": 4,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-12"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-12",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 2,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-26"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-26",
+      "estado": "pending"
     },
     {
       "equipo1_id": 6,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-03-26"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-03-26",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 3,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-02"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-02",
+      "estado": "pending"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 4,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-02"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-02",
+      "estado": "pending"
     },
     {
       "equipo1_id": 3,
       "equipo2_id": 6,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-09"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-09",
+      "estado": "pending"
     },
     {
       "equipo1_id": 4,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-09"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-09",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 6,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-16"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-16",
+      "estado": "pending"
     },
     {
       "equipo1_id": 2,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-16"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-16",
+      "estado": "pending"
     },
     {
       "equipo1_id": 3,
       "equipo2_id": 4,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-23"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-23",
+      "estado": "pending"
     },
     {
       "equipo1_id": 1,
       "equipo2_id": 5,
-      "goles1": 0,
-      "goles2": 0,
-      "fecha": "2026-04-23"
+      "goles1": null,
+      "goles2": null,
+      "fecha": "2026-04-23",
+      "estado": "pending"
     }
   ]
 }
