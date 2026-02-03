@@ -183,20 +183,6 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
         
         df_predictores = pd.DataFrame(tabla_predictores)
         st.dataframe(df_predictores, use_container_width=True, hide_index=True)
-        
-        # Option to remove a predictor
-        st.write("**Remove a predictor:**")
-        predictor_remove = st.selectbox(
-            "Select predictor to remove",
-            options=data["predictores"],
-            key="predictor_remove"
-        )
-        if st.button("❌ Remove Predictor", use_container_width=True):
-            data["predictores"].remove(predictor_remove)
-            data["predicciones"] = [p for p in data["predicciones"] if p["predictor"] != predictor_remove]
-            save_data(data)
-            st.success(f"✅ {predictor_remove} removed")
-            st.rerun()
     else:
         st.info("📝 No predictors registered yet. Be the first to register!")
 
