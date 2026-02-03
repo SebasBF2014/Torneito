@@ -278,10 +278,14 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
 
 st.markdown("---")
 
+# Initialize admin session state
+if "admin_password_entered" not in st.session_state:
+    st.session_state.admin_password_entered = False
+
 st.sidebar.markdown("### 🎮 CONTROL MENU")
 opcion = st.sidebar.radio(
     "What would you like to do?",
-    ["📊 Standings", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures"],
+    ["📊 Standings", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures", "🔐 Admin"],
     key="menu"
 )
 
@@ -782,6 +786,122 @@ elif opcion == "📅 Fixtures":
         
         df_resumen = pd.DataFrame(resumen)
         st.dataframe(df_resumen, use_container_width=True, hide_index=True)
+
+elif opcion == "🔐 Admin":
+    st.header("🔐 ADMIN PANEL")
+    
+    if not st.session_state.admin_password_entered:
+        st.warning("⚠️ This section requires administrator password")
+        password_input = st.text_input("Enter admin password", type="password", placeholder="Enter password")
+        
+        if st.button("🔓 Unlock Admin Panel", use_container_width=True, type="primary"):
+            if password_input == "Sebas2014":
+                st.session_state.admin_password_entered = True
+                st.success("✅ Admin panel unlocked!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect password")
+    else:
+        # Admin panel is unlocked
+        col1, col2 = st.columns([4, 1])
+        
+        with col2:
+            if st.button("🔐 Lock Admin"):
+                st.session_state.admin_password_entered = False
+                st.rerun()
+        
+        st.markdown("---")
+        st.subheader("📊 All Predictions Dashboard")
+        
+        if not data["predicciones"]:
+            st.info("📝 No predictions registered yet")
+        else:
+            # Create a detailed view of all predictions
+            st.markdown("### 📋 Predictions by Match")
+            
+            for partido_id_unique in sorted(set(p["partido_id"] for p in data["predicciones"])):
+                # Find the match details
+                partido = next((p for p in data["partidos"] if p.get("id") == partido_id_unique), None)
+                
+                if partido:
+                    equipo1_nombre = obtener_nombre_equipo(data, partido["equipo1_id"])
+                    equipo2_nombre = obtener_nombre_equipo(data, partido["equipo2_id"])
+                    equipo1_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo1_id"]), "⚽")
+                    equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo2_id"]), "⚽")
+                    
+                    # Get actual result if available
+                    goles1_real = partido.get("goles1")
+                    goles2_real = partido.get("goles2")
+                    
+                    if goles1_real is not None and goles2_real is not None:
+                        resultado_real = f"{goles1_real} - {goles2_real}"
+                        estado_partido = "✅ FINISHED"
+                    else:
+                        resultado_real = "? - ?"
+                        estado_partido = "⏳ PENDING"
+                    
+                    with st.expander(f"{equipo1_emoji} {equipo1_nombre} vs {equipo2_emoji} {equipo2_nombre} | {resultado_real} | {estado_partido}"):
+                        # Get all predictions for this match
+                        predicciones_partido = [p for p in data["predicciones"] if p["partido_id"] == partido_id_unique]
+                        
+                        # Create table data
+                        tabla_predicciones = []
+                        for pred in predicciones_partido:
+                            predictor = pred["predictor"]
+                            pred_tipo = pred.get("tipo", "advanced")
+                            
+                            if pred_tipo == "simple":
+                                resultado_map = {
+                                    "WIN_1": f"🏆 {equipo1_emoji} WINS",
+                                    "DRAW": "🤝 DRAW",
+                                    "WIN_2": f"🏆 {equipo2_emoji} WINS"
+                                }
+                                prediccion_display = resultado_map.get(pred.get("resultado"), "Unknown")
+                                points_possible = 1
+                            else:
+                                prediccion_display = f"{pred.get('goles1_pred', '?')} - {pred.get('goles2_pred', '?')}"
+                                points_possible = 2
+                            
+                            # Check if prediction is correct
+                            puntos_ganados = 0
+                            if goles1_real is not None and goles2_real is not None:
+                                if pred_tipo == "simple":
+                                    if goles1_real > goles2_real and pred.get("resultado") == "WIN_1":
+                                        puntos_ganados = 1
+                                    elif goles2_real > goles1_real and pred.get("resultado") == "WIN_2":
+                                        puntos_ganados = 1
+                                    elif goles1_real == goles2_real and pred.get("resultado") == "DRAW":
+                                        puntos_ganados = 1
+                                else:
+                                    if pred.get("goles1_pred") == goles1_real and pred.get("goles2_pred") == goles2_real:
+                                        puntos_ganados = 2
+                            
+                            tabla_predicciones.append({
+                                "👤 Predictor": predictor,
+                                "📝 Type": "Simple" if pred_tipo == "simple" else "Advanced",
+                                "🎯 Prediction": prediccion_display,
+                                "🏆 Points": puntos_ganados if estado_partido == "✅ FINISHED" else "⏳"
+                            })
+                        
+                        df_pred = pd.DataFrame(tabla_predicciones)
+                        st.dataframe(df_pred, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            st.markdown("### 📊 Predictions Summary")
+            
+            # Summary by predictor
+            resumen_predictores = []
+            for predictor in data["predictores"]:
+                predicciones_usuario = [p for p in data["predicciones"] if p["predictor"] == predictor]
+                resumen_predictores.append({
+                    "👤 Predictor": predictor,
+                    "🎯 Total Predictions": len(predicciones_usuario),
+                    "📝 Simple": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "simple"]),
+                    "📊 Advanced": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "advanced"])
+                })
+            
+            df_resumen_pred = pd.DataFrame(resumen_predictores)
+            st.dataframe(df_resumen_pred, use_container_width=True, hide_index=True)
 
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ Year 10 Football Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
