@@ -121,17 +121,36 @@ def calcular_puntos_predicciones(data):
     for prediccion in data["predicciones"]:
         partido_id = prediccion["partido_id"]
         predictor_nombre = prediccion["predictor"]
-        pred_goles1 = prediccion["goles1_pred"]
-        pred_goles2 = prediccion["goles2_pred"]
+        pred_tipo = prediccion.get("tipo", "advanced")  # "simple" o "advanced"
         
         # Find the match
         partido = next((p for p in data["partidos"] if p.get("id") == partido_id), None)
         
         if partido and partido.get("goles1") is not None and partido.get("goles2") is not None:
-            # Check if prediction is correct
-            if pred_goles1 == partido["goles1"] and pred_goles2 == partido["goles2"]:
-                if predictor_nombre in puntos:
-                    puntos[predictor_nombre] += 1
+            goles1_real = partido["goles1"]
+            goles2_real = partido["goles2"]
+            
+            # Determine actual result
+            if goles1_real > goles2_real:
+                resultado_real = "WIN_1"
+            elif goles2_real > goles1_real:
+                resultado_real = "WIN_2"
+            else:
+                resultado_real = "DRAW"
+            
+            if pred_tipo == "simple":
+                # Simple prediction: 1 point for correct winner/draw
+                pred_resultado = prediccion.get("resultado", "")
+                if pred_resultado == resultado_real:
+                    if predictor_nombre in puntos:
+                        puntos[predictor_nombre] += 1
+            else:
+                # Advanced prediction: 2 points for exact score
+                pred_goles1 = prediccion.get("goles1_pred")
+                pred_goles2 = prediccion.get("goles2_pred")
+                if pred_goles1 == goles1_real and pred_goles2 == goles2_real:
+                    if predictor_nombre in puntos:
+                        puntos[predictor_nombre] += 2
     
     return puntos
 
@@ -638,24 +657,57 @@ elif opcion == "📅 Fixtures":
                                     key=f"predictor_{partido_id}"
                                 )
                                 
-                                pred_col1, pred_col2 = st.columns(2)
-                                with pred_col1:
-                                    goles1_pred = st.number_input(
-                                        "Goals Team 1",
-                                        min_value=0,
-                                        max_value=20,
-                                        key=f"goles1_pred_{partido_id}"
-                                    )
-                                with pred_col2:
-                                    goles2_pred = st.number_input(
-                                        "Goals Team 2",
-                                        min_value=0,
-                                        max_value=20,
-                                        key=f"goles2_pred_{partido_id}"
-                                    )
+                                # Choose prediction type
+                                pred_type = st.radio(
+                                    "Choose prediction type:",
+                                    ["🎯 Simple (1 point for correct winner)", "📊 Advanced (2 points for exact score)"],
+                                    key=f"pred_type_{partido_id}"
+                                )
                                 
-                                if st.button("📤 Submit Prediction", key=f"submit_pred_{partido_id}", use_container_width=True):
-                                    # Check if prediction already exists
+                                if "Simple" in pred_type:
+                                    # Simple prediction
+                                    resultado_pred = st.radio(
+                                        "Predict the result:",
+                                        [f"🏆 WIN {equipo1_emoji} (Team 1)", "🤝 DRAW", f"🏆 WIN {equipo2_emoji} (Team 2)"],
+                                        key=f"resultado_pred_{partido_id}"
+                                    )
+                                    
+                                    if st.button("📤 Submit Prediction", key=f"submit_pred_{partido_id}", use_container_width=True):
+                                        # Map prediction to result code
+                                        if "Team 1" in resultado_pred:
+                                            resultado_code = "WIN_1"
+                                        elif "DRAW" in resultado_pred:
+                                            resultado_code = "DRAW"
+                                        else:
+                                            resultado_code = "WIN_2"
+                                        
+                                        # Check if prediction already exists
+                                        pred_existente = next(
+                                            (p for p in data["predicciones"] 
+                                             if p["partido_id"] == partido_id and p["predictor"] == predictor),
+                                            None
+                                        )
+                                        
+                                        if pred_existente:
+                                            # Update existing prediction
+                                            pred_existente["tipo"] = "simple"
+                                            pred_existente["resultado"] = resultado_code
+                                            st.info(f"✏️ Prediction updated: {resultado_pred}")
+                                        else:
+                                            # Add new prediction
+                                            nueva_prediccion = {
+                                                "partido_id": partido_id,
+                                                "predictor": predictor,
+                                                "tipo": "simple",
+                                                "resultado": resultado_code
+                                            }
+                                            data["predicciones"].append(nueva_prediccion)
+                                            st.success(f"✅ Prediction registered: {resultado_pred}")
+                                        
+                                        save_data(data)
+                                        st.rerun()
+                                    
+                                    # Show existing prediction if any
                                     pred_existente = next(
                                         (p for p in data["predicciones"] 
                                          if p["partido_id"] == partido_id and p["predictor"] == predictor),
@@ -663,33 +715,69 @@ elif opcion == "📅 Fixtures":
                                     )
                                     
                                     if pred_existente:
-                                        # Update existing prediction
-                                        pred_existente["goles1_pred"] = goles1_pred
-                                        pred_existente["goles2_pred"] = goles2_pred
-                                        st.info(f"✏️ Prediction updated: {goles1_pred} - {goles2_pred}")
-                                    else:
-                                        # Add new prediction
-                                        nueva_prediccion = {
-                                            "partido_id": partido_id,
-                                            "predictor": predictor,
-                                            "goles1_pred": goles1_pred,
-                                            "goles2_pred": goles2_pred
+                                        resultado_display = {
+                                            "WIN_1": f"🏆 WIN {equipo1_emoji} (Team 1)",
+                                            "DRAW": "🤝 DRAW",
+                                            "WIN_2": f"🏆 WIN {equipo2_emoji} (Team 2)"
                                         }
-                                        data["predicciones"].append(nueva_prediccion)
-                                        st.success(f"✅ Prediction registered: {goles1_pred} - {goles2_pred}")
+                                        st.caption(f"Your prediction: {resultado_display.get(pred_existente.get('resultado'), 'Unknown')}")
+                                else:
+                                    # Advanced prediction
+                                    pred_col1, pred_col2 = st.columns(2)
+                                    with pred_col1:
+                                        goles1_pred = st.number_input(
+                                            "Goals Team 1",
+                                            min_value=0,
+                                            max_value=20,
+                                            key=f"goles1_pred_{partido_id}"
+                                        )
+                                    with pred_col2:
+                                        goles2_pred = st.number_input(
+                                            "Goals Team 2",
+                                            min_value=0,
+                                            max_value=20,
+                                            key=f"goles2_pred_{partido_id}"
+                                        )
                                     
-                                    save_data(data)
-                                    st.rerun()
-                                
-                                # Show existing prediction if any
-                                pred_existente = next(
-                                    (p for p in data["predicciones"] 
-                                     if p["partido_id"] == partido_id and p["predictor"] == predictor),
-                                    None
-                                )
-                                
-                                if pred_existente:
-                                    st.caption(f"Your prediction: {pred_existente['goles1_pred']} - {pred_existente['goles2_pred']}")
+                                    if st.button("📤 Submit Prediction", key=f"submit_pred_{partido_id}", use_container_width=True):
+                                        # Check if prediction already exists
+                                        pred_existente = next(
+                                            (p for p in data["predicciones"] 
+                                             if p["partido_id"] == partido_id and p["predictor"] == predictor),
+                                            None
+                                        )
+                                        
+                                        if pred_existente:
+                                            # Update existing prediction
+                                            pred_existente["tipo"] = "advanced"
+                                            pred_existente["goles1_pred"] = goles1_pred
+                                            pred_existente["goles2_pred"] = goles2_pred
+                                            st.info(f"✏️ Prediction updated: {goles1_pred} - {goles2_pred}")
+                                        else:
+                                            # Add new prediction
+                                            nueva_prediccion = {
+                                                "partido_id": partido_id,
+                                                "predictor": predictor,
+                                                "tipo": "advanced",
+                                                "goles1_pred": goles1_pred,
+                                                "goles2_pred": goles2_pred
+                                            }
+                                            data["predicciones"].append(nueva_prediccion)
+                                            st.success(f"✅ Prediction registered: {goles1_pred} - {goles2_pred}")
+                                        
+                                        save_data(data)
+                                        st.rerun()
+                                    
+                                    # Show existing prediction if any
+                                    pred_existente = next(
+                                        (p for p in data["predicciones"] 
+                                         if p["partido_id"] == partido_id and p["predictor"] == predictor),
+                                        None
+                                    )
+                                    
+                                    if pred_existente:
+                                        st.caption(f"Your prediction: {pred_existente.get('goles1_pred', '?')} - {pred_existente.get('goles2_pred', '?')}")
+
                         else:
                             st.caption("📝 Register in prediction table first")
                     else:
