@@ -137,6 +137,10 @@ def calcular_puntos_predicciones(data):
 
 data = load_data()
 
+# Initialize session state for registration tracking
+if "registered_predictor" not in st.session_state:
+    st.session_state.registered_predictor = None
+
 st.markdown("<div class='title-big'>⚽ YEAR 10 FOOTBALL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 Let the battle begin! 🔥</p>", unsafe_allow_html=True)
 
@@ -147,27 +151,33 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
     if data["predictores"]:
         st.info(f"✅ Already registered: {', '.join(data['predictores'])}")
     
-    col1, col2 = st.columns([3, 1])
-    
-    with col1:
-        nuevo_predictor = st.text_input(
-            "📝 Enter your name to participate in predictions",
-            placeholder="e.g., John Doe",
-            key="nuevo_predictor"
-        )
-    
-    with col2:
-        if st.button("✅ Register", use_container_width=True, type="primary"):
-            if nuevo_predictor.strip():
-                if nuevo_predictor not in data["predictores"]:
-                    data["predictores"].append(nuevo_predictor)
-                    save_data(data)
-                    st.success(f"✅ {nuevo_predictor} registered for predictions!")
-                    st.rerun()
+    # Check if user already registered in this session
+    if st.session_state.registered_predictor is None:
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            nuevo_predictor = st.text_input(
+                "📝 Enter your name to participate in predictions",
+                placeholder="e.g., John Doe",
+                key="nuevo_predictor"
+            )
+        
+        with col2:
+            if st.button("✅ Register", use_container_width=True, type="primary"):
+                if nuevo_predictor.strip():
+                    if nuevo_predictor not in data["predictores"]:
+                        data["predictores"].append(nuevo_predictor)
+                        st.session_state.registered_predictor = nuevo_predictor
+                        save_data(data)
+                        st.success(f"✅ {nuevo_predictor} registered for predictions!")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
                 else:
-                    st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
-            else:
-                st.error("❌ Please enter your name")
+                    st.error("❌ Please enter your name")
+    else:
+        st.success(f"✅ You have already registered as: **{st.session_state.registered_predictor}**")
+        st.info("🔒 Registration is locked on this device. You can only register one name per session.")
     
     st.divider()
     
