@@ -150,6 +150,24 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
     # Show already registered predictors
     if data["predictores"]:
         st.info(f"✅ Already registered: {', '.join(data['predictores'])}")
+        
+        # Option to select from already registered predictors
+        st.write("**Select your name if already registered:**")
+        selected_predictor = st.selectbox(
+            "Select from registered names",
+            options=[""] + data["predictores"],
+            format_func=lambda x: "-- Choose your name --" if x == "" else x,
+            key="select_predictor"
+        )
+        
+        if selected_predictor:
+            if st.button("✅ Confirm Selection", use_container_width=True, type="primary"):
+                st.session_state.registered_predictor = selected_predictor
+                st.success(f"✅ You are now: **{selected_predictor}**")
+                st.rerun()
+        
+        st.divider()
+        st.write("**Or register a new name:**")
     
     # Check if user already registered in this session
     if st.session_state.registered_predictor is None:
@@ -163,7 +181,7 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
             )
         
         with col2:
-            if st.button("✅ Register", use_container_width=True, type="primary"):
+            if st.button("✅ Register New", use_container_width=True, type="primary"):
                 if nuevo_predictor.strip():
                     if nuevo_predictor not in data["predictores"]:
                         data["predictores"].append(nuevo_predictor)
@@ -172,12 +190,16 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
                         st.success(f"✅ {nuevo_predictor} registered for predictions!")
                         st.rerun()
                     else:
-                        st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
+                        st.error(f"❌ '{nuevo_predictor}' is already registered! Select it from the list above.")
                 else:
                     st.error("❌ Please enter your name")
     else:
-        st.success(f"✅ You have already registered as: **{st.session_state.registered_predictor}**")
-        st.info("🔒 Registration is locked on this device. You can only register one name per session.")
+        st.success(f"✅ You are logged in as: **{st.session_state.registered_predictor}**")
+        st.info("🔒 You can now make predictions with this name.")
+        
+        if st.button("🚪 Switch Name"):
+            st.session_state.registered_predictor = None
+            st.rerun()
     
     st.divider()
     
