@@ -197,6 +197,41 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
         st.success(f"✅ You are logged in as: **{st.session_state.registered_predictor}**")
         st.info("🔒 You can now make predictions with this name.")
         
+        st.divider()
+        st.write("**Change your name:**")
+        
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            nuevo_predictor = st.text_input(
+                "📝 Enter a new name",
+                placeholder="e.g., Jane Doe",
+                key="nuevo_predictor_change"
+            )
+        
+        with col2:
+            if st.button("✅ Change Name", use_container_width=True, type="primary"):
+                if nuevo_predictor.strip():
+                    if nuevo_predictor not in data["predictores"]:
+                        # Remove old name from predictors
+                        if st.session_state.registered_predictor in data["predictores"]:
+                            data["predictores"].remove(st.session_state.registered_predictor)
+                            # Remove predictions associated with old name
+                            data["predicciones"] = [p for p in data["predicciones"] if p["predictor"] != st.session_state.registered_predictor]
+                        
+                        # Add new name
+                        data["predictores"].append(nuevo_predictor)
+                        st.session_state.registered_predictor = nuevo_predictor
+                        save_data(data)
+                        st.success(f"✅ Name changed to {nuevo_predictor}!")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
+                else:
+                    st.error("❌ Please enter your new name")
+        
+        st.divider()
+        
         if st.button("🚪 Switch Name"):
             st.session_state.registered_predictor = None
             st.rerun()
