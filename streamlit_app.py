@@ -143,6 +143,10 @@ st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥
 # Predictor Registration Section
 st.markdown("---")
 with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
+    # Show already registered predictors
+    if data["predictores"]:
+        st.info(f"✅ Already registered: {', '.join(data['predictores'])}")
+    
     col1, col2 = st.columns([3, 1])
     
     with col1:
@@ -161,7 +165,7 @@ with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
                     st.success(f"✅ {nuevo_predictor} registered for predictions!")
                     st.rerun()
                 else:
-                    st.warning(f"⚠️ {nuevo_predictor} is already registered")
+                    st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
             else:
                 st.error("❌ Please enter your name")
     
