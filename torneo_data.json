@@ -292,5 +292,6 @@
       "fecha": "2026-04-23",
       "estado": "pending"
     }
-  ]
+  ],
+  "admin_session": null
 }
