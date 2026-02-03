@@ -220,39 +220,6 @@ elif opcion == "🏆 Teams":
 elif opcion == "👥 Players":
     st.header("👥 REGISTER PLAYERS")
     
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.subheader("Add Player")
-        
-        equipo_sel = st.selectbox(
-            "🏠 Select a team",
-            options=[e["id"] for e in data["equipos"]],
-            format_func=lambda x: obtener_nombre_equipo(data, x),
-            key="equipo_jugador"
-        )
-        
-        nombre_jugador = st.text_input("Player name", placeholder="Ex: John Smith")
-        numero_camiseta = st.number_input("Jersey number", min_value=1, max_value=99, step=1)
-        
-        if st.button("✅ Register Player", use_container_width=True, type="primary"):
-            if nombre_jugador.strip():
-                nuevo_jugador = {
-                    "id": len(data["jugadores"]) + 1,
-                    "nombre": nombre_jugador,
-                    "equipo_id": equipo_sel,
-                    "numero": int(numero_camiseta)
-                }
-                data["jugadores"].append(nuevo_jugador)
-                save_data(data)
-                st.success(f"✅ Player {nombre_jugador} registered in {obtener_nombre_equipo(data, equipo_sel)}!")
-                st.rerun()
-            else:
-                st.error("❌ Please enter the player's name")
-    
-    with col2:
-        st.subheader("Total Players")
-        st.metric("👥", len(data["jugadores"]))
-    
     st.markdown("---")
     st.subheader("📋 Registered Players")
     

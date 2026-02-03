@@ -91,6 +91,12 @@
       "nombre": "Gia Toan Ha (Jason)",
       "equipo_id": 2,
       "numero": 7
+    },
+    {
+      "id": 11,
+      "nombre": "Vincent Smith",
+      "equipo_id": 1,
+      "numero": 10
     }
   ],
   "partidos": [
