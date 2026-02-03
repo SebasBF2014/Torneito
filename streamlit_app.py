@@ -32,6 +32,8 @@ def load_data():
                 data["predictores"] = []
             if "predicciones" not in data:
                 data["predicciones"] = []
+            if "admin_session" not in data:
+                data["admin_session"] = None
             return data
     return {
         "equipos": [
@@ -45,7 +47,8 @@ def load_data():
         "jugadores": [],
         "partidos": [],
         "predictores": [],
-        "predicciones": []
+        "predicciones": [],
+        "admin_session": None
     }
 
 def save_data(data):
@@ -790,24 +793,24 @@ elif opcion == "📅 Fixtures":
 elif opcion == "🔐 Admin":
     st.header("🔐 ADMIN PANEL")
     
-    if not st.session_state.admin_password_entered:
-        st.warning("⚠️ This section requires administrator password")
-        password_input = st.text_input("Enter admin password", type="password", placeholder="Enter password")
-        
-        if st.button("🔓 Unlock Admin Panel", use_container_width=True, type="primary"):
-            if password_input == "Sebas2014":
-                st.session_state.admin_password_entered = True
-                st.success("✅ Admin panel unlocked!")
-                st.rerun()
-            else:
-                st.error("❌ Incorrect password")
-    else:
-        # Admin panel is unlocked
+    # Check if there's already an admin session active
+    admin_activo = data.get("admin_session")
+    es_admin_actual = st.session_state.admin_password_entered
+    
+    if admin_activo and not es_admin_actual:
+        # There's an admin active and this is not the admin
+        st.error("❌ Admin panel is currently being used by another user")
+        st.info("⏳ Only one admin can access the panel at a time. Please try again later.")
+    elif es_admin_actual:
+        # This is the current admin
         col1, col2 = st.columns([4, 1])
         
         with col2:
-            if st.button("🔐 Lock Admin"):
+            if st.button("🚪 Logout Admin", use_container_width=True):
                 st.session_state.admin_password_entered = False
+                data["admin_session"] = None
+                save_data(data)
+                st.success("✅ Admin session closed")
                 st.rerun()
         
         st.markdown("---")
@@ -902,6 +905,20 @@ elif opcion == "🔐 Admin":
             
             df_resumen_pred = pd.DataFrame(resumen_predictores)
             st.dataframe(df_resumen_pred, use_container_width=True, hide_index=True)
+    else:
+        # No admin active - allow password entry
+        st.warning("⚠️ This section requires administrator password")
+        password_input = st.text_input("Enter admin password", type="password", placeholder="Enter password")
+        
+        if st.button("🔓 Unlock Admin Panel", use_container_width=True, type="primary"):
+            if password_input == "Sebas2014":
+                st.session_state.admin_password_entered = True
+                data["admin_session"] = datetime.now().isoformat()
+                save_data(data)
+                st.success("✅ Admin panel unlocked!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect password")
 
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: #999; font-size: 0.8rem;'>⚽ Year 10 Football Tournament v1.0 - May the best team win! 🏆</p>", unsafe_allow_html=True)
