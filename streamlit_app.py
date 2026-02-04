@@ -398,25 +398,27 @@ elif opcion == "👥 Players":
             
             if jugadores_equipo:
                 with st.expander(f"{equipo['escudo']} {equipo['nombre']} ({len(jugadores_equipo)} players)"):
-                    cols = st.columns([2, 1, 1])
+                    cols = st.columns([3, 1, 1, 1])
                     with cols[0]:
                         st.write("**Name**")
                     with cols[1]:
-                        st.write("**Jersey**")
+                        st.write("**Position**")
                     with cols[2]:
+                        st.write("**Jersey**")
+                    with cols[3]:
                         st.write("**Actions**")
-                    
+
                     st.divider()
-                    
+
                     for jugador in sorted(jugadores_equipo, key=lambda x: x["numero"]):
-                        col1, col2, col3 = st.columns([2, 1, 1])
+                        col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
                         with col1:
-                            pos = jugador.get("posicion", "")
-                            nombre_disp = f"{jugador['nombre']} ({pos})" if pos else jugador['nombre']
-                            st.write(nombre_disp)
+                            st.write(jugador["nombre"])
                         with col2:
-                            st.write(f"#{jugador['numero']}")
+                            st.write(jugador.get("posicion", ""))
                         with col3:
+                            st.write(f"#{jugador['numero']}")
+                        with col4:
                             if st.button("❌ Delete", key=f"delete_{jugador['id']}", use_container_width=True):
                                 data["jugadores"].remove(jugador)
                                 save_data(data)
