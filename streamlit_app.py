@@ -17,6 +17,9 @@ def load_data():
                 data["predicciones"] = []
             # Always reset admin session on load
             data["admin_session"] = None
+            # Ensure teams field exists
+            if "teams" not in data:
+                data["teams"] = []
             # Ensure players have a 'posicion' field
             if "jugadores" in data:
                 for j in data["jugadores"]:
@@ -276,7 +279,7 @@ if "admin_password_entered" not in st.session_state:
 st.sidebar.markdown("### 🎮 CONTROL MENU")
 opcion = st.sidebar.radio(
     "What would you like to do?",
-    ["📊 Standings", "🏆 Teams", "👥 Players", "🔮 Predictions", "📋 Match History", "📅 Fixtures", "🔐 Admin"],
+    ["📊 Standings", "🏆 Teams", "👥 Players", "Make your team", "🔮 Predictions", "📋 Match History", "📅 Fixtures", "🔐 Admin"],
     key="menu"
 )
 
@@ -424,6 +427,59 @@ elif opcion == "👥 Players":
                                 save_data(data)
                                 st.success("Player deleted")
                                 st.rerun()
+
+elif opcion == "Make your team":
+    st.header("🎽 Make your team")
+
+    # Require registration
+    if st.session_state.get("registered_predictor") is None:
+        st.info("Please register a predictor name first to create a team.")
+    else:
+        predictor = st.session_state.registered_predictor
+        st.markdown(f"**Logged as:** {predictor}")
+
+        st.markdown("Choose your 5-player formation (one player per position)")
+
+        jugadores = data.get("jugadores", [])
+        id_to_name = {p["id"]: p["nombre"] for p in jugadores}
+
+        # Check if predictor already has a saved team
+        existing = next((t for t in data.get("teams", []) if t.get("predictor") == predictor), None)
+
+        positions = ["GK", "CB", "CM", "ST", "LW/RW"]
+
+        # Prefill session_state for selectboxes if existing
+        if existing:
+            for pos in positions:
+                val = existing.get("seleccion", {}).get(pos, "")
+                st.session_state.setdefault(f"team_{pos}", val)
+
+        cols = st.columns(1)
+        selections = {}
+        for pos in positions:
+            options = [""] + [p["id"] for p in jugadores]
+            def fmt(i, id_to_name=id_to_name):
+                return "-- choose --" if i == "" else id_to_name.get(i, str(i))
+            sel = st.selectbox(f"{pos}", options=options, format_func=fmt, key=f"team_{pos}")
+            selections[pos] = sel
+
+        if st.button("Submit Team", type="primary"):
+            sel_ids = [v for v in selections.values() if v != ""]
+            if len(sel_ids) < len(positions):
+                st.error("Please select a player for each position")
+            elif len(set(sel_ids)) < len(sel_ids):
+                st.error("A player cannot be selected for multiple positions")
+            else:
+                # remove any previous team for predictor
+                data["teams"] = [t for t in data.get("teams", []) if t.get("predictor") != predictor]
+                data["teams"].append({
+                    "predictor": predictor,
+                    "seleccion": selections,
+                    "timestamp": datetime.now().isoformat()
+                })
+                save_data(data)
+                st.success("✅ Team saved")
+                st.rerun()
 
 elif opcion == "🔮 Predictions":
     st.header("🔮 MATCH PREDICTIONS")
@@ -897,6 +953,29 @@ elif opcion == "🔐 Admin":
             
             df_resumen_pred = pd.DataFrame(resumen_predictores)
             st.dataframe(df_resumen_pred, use_container_width=True, hide_index=True)
+            
+            # Show saved teams
+            st.markdown("---")
+            st.subheader("📣 Submitted Teams")
+            if not data.get("teams"):
+                st.info("No teams submitted yet.")
+            else:
+                tabla_teams = []
+                for t in data.get("teams", []):
+                    predictor = t.get("predictor")
+                    seleccion = t.get("seleccion", {})
+                    # Build display string
+                    parts = []
+                    for pos, pid in seleccion.items():
+                        name = next((p["nombre"] for p in data.get("jugadores", []) if p.get("id") == pid), "-") if pid != "" else "-"
+                        parts.append(f"{pos}: {name}")
+                    tabla_teams.append({
+                        "👤 Predictor": predictor,
+                        "🧩 Team": " | ".join(parts),
+                        "🕒 Submitted": t.get("timestamp", "")
+                    })
+                df_teams = pd.DataFrame(tabla_teams)
+                st.dataframe(df_teams, use_container_width=True, hide_index=True)
     else:
         # No admin active - allow password entry
         st.warning("⚠️ This section requires administrator password")
