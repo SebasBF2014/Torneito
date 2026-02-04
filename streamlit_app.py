@@ -15,8 +15,8 @@ def load_data():
                 data["predictores"] = []
             if "predicciones" not in data:
                 data["predicciones"] = []
-            if "admin_session" not in data:
-                data["admin_session"] = None
+            # Always reset admin session on load
+            data["admin_session"] = None
             return data
     return {
         "equipos": [
