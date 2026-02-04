@@ -280,7 +280,8 @@ elif opcion == "Make your team":
 
         # Support both English and Spanish keys: 'players' or 'jugadores'
         jugadores = data.get("players", data.get("jugadores", []))
-        id_to_name = {p["id"]: p["nombre"] for p in jugadores}
+        # Map id -> display string like "Name (#10)"
+        id_to_display = {p["id"]: f"{p.get('nombre', 'Unknown')} (#{p.get('numero', '')})" for p in jugadores}
 
         if not jugadores:
             st.info("No players registered yet. Add players in the 'Players' section.")
@@ -301,8 +302,8 @@ elif opcion == "Make your team":
         selections = {}
         for pos in positions:
             options = [""] + [p["id"] for p in jugadores]
-            def fmt(i, id_to_name=id_to_name):
-                return "-- choose --" if i == "" else id_to_name.get(i, str(i))
+            def fmt(i, id_to_display=id_to_display):
+                return "-- choose --" if i == "" else id_to_display.get(i, str(i))
             sel = st.selectbox(f"{pos}", options=options, format_func=fmt, key=f"team_{pos}")
             selections[pos] = sel
 
