@@ -17,6 +17,11 @@ def load_data():
                 data["predicciones"] = []
             # Always reset admin session on load
             data["admin_session"] = None
+            # Ensure players have a 'posicion' field
+            if "jugadores" in data:
+                for j in data["jugadores"]:
+                    if "posicion" not in j:
+                        j["posicion"] = ""
             return data
     return {
         "equipos": [
@@ -406,7 +411,9 @@ elif opcion == "👥 Players":
                     for jugador in sorted(jugadores_equipo, key=lambda x: x["numero"]):
                         col1, col2, col3 = st.columns([2, 1, 1])
                         with col1:
-                            st.write(jugador["nombre"])
+                            pos = jugador.get("posicion", "")
+                            nombre_disp = f"{jugador['nombre']} ({pos})" if pos else jugador['nombre']
+                            st.write(nombre_disp)
                         with col2:
                             st.write(f"#{jugador['numero']}")
                         with col3:
