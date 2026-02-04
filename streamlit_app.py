@@ -278,8 +278,13 @@ elif opcion == "Make your team":
 
         st.markdown("Choose your 5-player formation (one player per position)")
 
-        jugadores = data.get("jugadores", [])
+        # Support both English and Spanish keys: 'players' or 'jugadores'
+        jugadores = data.get("players", data.get("jugadores", []))
         id_to_name = {p["id"]: p["nombre"] for p in jugadores}
+
+        if not jugadores:
+            st.info("No players registered yet. Add players in the 'Players' section.")
+            st.stop()
 
         # Check if predictor already has a saved team
         existing = next((t for t in data.get("teams", []) if t.get("predictor") == predictor), None)
