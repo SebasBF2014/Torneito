@@ -293,5 +293,7 @@
       "estado": "pending"
     }
   ],
-  "admin_session": null
+  "admin_session": "2026-02-03T21:49:42.671329",
+  "predictores": [],
+  "predicciones": []
 }

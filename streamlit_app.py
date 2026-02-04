@@ -4,75 +4,107 @@ import json
 from datetime import datetime
 import os
 
-st.set_page_config(
-    page_title="⚽ Year 10 Football Tournament",
-    page_icon="⚽",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-st.markdown("""
-<style>
-    .title-big {
-        font-size: 3rem;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-</style>
-""", unsafe_allow_html=True)
+if opcion == "🔐 Admin":
+    st.header("🔐 ADMIN PANEL")
 
-DATA_FILE = "torneo_data.json"
+    # Obtener la IP del cliente
+    import streamlit as stlib
+    import os
+    import socket
+    from streamlit.web.server.websocket_headers import _get_websocket_headers
 
-def load_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            # Ensure new fields exist
-            if "predictores" not in data:
-                data["predictores"] = []
-            if "predicciones" not in data:
-                data["predicciones"] = []
-            if "admin_session" not in data:
+    def get_client_ip():
+        try:
+            headers = _get_websocket_headers()
+            if headers is not None:
+                # X-Forwarded-For puede contener varias IPs, tomamos la primera
+                xff = headers.get("X-Forwarded-For")
+                if xff:
+                    return xff.split(",")[0].strip()
+                # Si no, intentamos REMOTE_ADDR
+                remote_addr = headers.get("REMOTE_ADDR")
+                if remote_addr:
+                    return remote_addr
+        except Exception:
+            pass
+        return None
+
+    # IP permitida (ajusta esto si tu IP cambia)
+    IP_PERMITIDA = get_client_ip()
+    IP_ADMIN = IP_PERMITIDA  # Puedes poner aquí la IP fija si lo deseas
+
+    client_ip = get_client_ip()
+    if client_ip != IP_ADMIN:
+        st.error(f"❌ Acceso denegado. Solo el dispositivo autorizado puede acceder al modo admin. Tu IP: {client_ip}")
+        st.stop()
+
+    # Check if there's already an admin session active
+    admin_activo = data.get("admin_session")
+    es_admin_actual = st.session_state.admin_password_entered
+
+    if admin_activo and not es_admin_actual:
+        # There's an admin active and this is not the admin
+        st.error("❌ Admin panel is currently being used by another user")
+        st.info("⏳ Only one admin can access the panel at a time. Please try again later.")
+    elif es_admin_actual:
+        # This is the current admin
+        col1, col2 = st.columns([4, 1])
+
+        with col2:
+            if st.button("🚪 Logout Admin", use_container_width=True):
+                st.session_state.admin_password_entered = False
                 data["admin_session"] = None
-            return data
-    return {
-        "equipos": [
-            {"id": 1, "nombre": "(10.1 + 10.8)", "escudo": "🦅"},
-            {"id": 2, "nombre": "(10.3 + 10.5)", "escudo": "🦁"},
-            {"id": 3, "nombre": "(10.6)", "escudo": "🐯"},
-            {"id": 4, "nombre": "(10.7)", "escudo": "🦊"},
-            {"id": 5, "nombre": "(10.9)", "escudo": "🦈"},
-            {"id": 6, "nombre": "(10.10)", "escudo": "🐻"},
-        ],
-        "jugadores": [],
-        "partidos": [],
-        "predictores": [],
-        "predicciones": [],
-        "admin_session": None
-    }
+                save_data(data)
+                st.success("✅ Admin session closed")
+                st.rerun()
 
-def save_data(data):
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        st.markdown("---")
+        st.subheader("📊 All Predictions Dashboard")
 
-def calcular_estadisticas(data):
-    stats = {}
-    
-    for equipo in data["equipos"]:
-        stats[equipo["id"]] = {
-            "nombre": equipo["nombre"],
-            "escudo": equipo["escudo"],
-            "partidos": 0,
-            "ganados": 0,
-            "empatados": 0,
-            "perdidos": 0,
-            "goles_favor": 0,
-            "goles_contra": 0,
-            "puntos": 0
-        }
-    
-    for partido in data["partidos"]:
-        equipo1_id = partido["equipo1_id"]
+        if not data["predicciones"]:
+            st.info("📝 No predictions registered yet")
+        else:
+            # Create a detailed view of all predictions
+            st.markdown("### 📋 Predictions by Match")
+
+            for partido_id_unique in sorted(set(p["partido_id"] for p in data["predicciones"])):
+                # Find the match details
+                partido = next((p for p in data["partidos"] if p.get("id") == partido_id_unique), None)
+
+                if partido:
+                    pass
+
+            st.markdown("---")
+            st.markdown("### 📊 Predictions Summary")
+
+            # Summary by predictor
+            resumen_predictores = []
+            for predictor in data["predictores"]:
+                predicciones_usuario = [p for p in data["predicciones"] if p["predictor"] == predictor]
+                resumen_predictores.append({
+                    "👤 Predictor": predictor,
+                    "🎯 Total Predictions": len(predicciones_usuario),
+                    "📝 Simple": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "simple"]),
+                    "📊 Advanced": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "advanced"])
+                })
+
+            df_resumen_pred = pd.DataFrame(resumen_predictores)
+            st.dataframe(df_resumen_pred, use_container_width=True, hide_index=True)
+    else:
+        # No admin active - allow password entry
+        st.warning("⚠️ This section requires administrator password")
+        password_input = st.text_input("Enter admin password", type="password", placeholder="Enter password")
+
+        if st.button("🔓 Unlock Admin Panel", use_container_width=True, type="primary"):
+            if password_input == "Sebas2014":
+                st.session_state.admin_password_entered = True
+                data["admin_session"] = datetime.now().isoformat()
+                save_data(data)
+                st.success("✅ Admin panel unlocked!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect password")
         equipo2_id = partido["equipo2_id"]
         goles1 = partido["goles1"]
         goles2 = partido["goles2"]
