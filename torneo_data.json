@@ -36,67 +36,78 @@
       "id": 1,
       "nombre": "Sebastian Bernal",
       "equipo_id": 4,
-      "numero": 10
+      "numero": 10,
+      "posicion": "GK"
     },
     {
       "id": 2,
       "nombre": "Pietro Pavone",
       "equipo_id": 4,
-      "numero": 7
+      "numero": 7,
+      "posicion": "LW/RW"
     },
     {
       "id": 3,
       "nombre": "Saed Kraim",
       "equipo_id": 4,
-      "numero": 11
+      "numero": 11,
+      "posicion": "CB"
     },
     {
       "id": 4,
       "nombre": "Mohammed Adnan Ghnaw",
       "equipo_id": 4,
-      "numero": 8
+      "numero": 8,
+      "posicion": "LW/RW"
     },
     {
       "id": 5,
       "nombre": "Ella El Trabelsi",
       "equipo_id": 4,
-      "numero": 5
+      "numero": 5,
+      "posicion": "MC"
     },
     {
       "id": 6,
       "nombre": "Dean Bonicci",
       "equipo_id": 3,
-      "numero": 7
+      "numero": 7,
+      "posicion": "CM"
     },
     {
       "id": 7,
       "nombre": "Ayden Sammut",
       "equipo_id": 3,
-      "numero": 9
+      "numero": 9,
+      "posicion": "ST"
     },
     {
       "id": 8,
       "nombre": "Yazin Shibani",
       "equipo_id": 3,
-      "numero": 10
+      "numero": 10,
+      "posicion": "CAM"
     },
     {
       "id": 9,
       "nombre": "Gerard Romero",
       "equipo_id": 2,
-      "numero": 10
+      "numero": 10,
+      "posicion": "ST"
     },
     {
       "id": 10,
       "nombre": "Gia Toan Ha (Jason)",
       "equipo_id": 2,
-      "numero": 7
+      "numero": 7,
+      "posicion": "CM"
     },
     {
       "id": 11,
       "nombre": "Vincent Smith",
       "equipo_id": 1,
-      "numero": 10
+      "numero": 10,
+      "posicion": "CB"
     }
   ],
   "partidos": [
@@ -293,7 +304,7 @@
       "estado": "pending"
     }
   ],
-  "admin_session": "2026-02-03T21:49:42.671329",
+  "admin_session": null,
   "predictores": [],
   "predicciones": []
 }
