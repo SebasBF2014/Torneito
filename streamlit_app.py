@@ -11,10 +11,6 @@ def load_data():
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
             # Ensure new fields exist
-            if "predictores" not in data:
-                data["predictores"] = []
-            if "predicciones" not in data:
-                data["predicciones"] = []
             # Always reset admin session on load
             data["admin_session"] = None
             # Ensure teams field exists
@@ -37,8 +33,6 @@ def load_data():
         ],
         "jugadores": [],
         "partidos": [],
-        "predictores": [],
-        "predicciones": [],
         "admin_session": None
     }
 
@@ -103,173 +97,16 @@ def obtener_nombre_equipo(data, equipo_id):
             return equipo["nombre"]
     return "Unknown Team"
 
-def calcular_puntos_predicciones(data):
-    """Calculate prediction points for each predictor"""
-    puntos = {}
-    
-    # Initialize all predictors with 0 points
-    for predictor in data["predictores"]:
-        puntos[predictor] = 0
-    
-    # Count correct predictions
-    for prediccion in data["predicciones"]:
-        partido_id = prediccion["partido_id"]
-        predictor_nombre = prediccion["predictor"]
-        pred_tipo = prediccion.get("tipo", "advanced")  # "simple" o "advanced"
-        
-        # Find the match
-        partido = next((p for p in data["partidos"] if p.get("id") == partido_id), None)
-        
-        if partido and partido.get("goles1") is not None and partido.get("goles2") is not None:
-            goles1_real = partido["goles1"]
-            goles2_real = partido["goles2"]
-            
-            # Determine actual result
-            if goles1_real > goles2_real:
-                resultado_real = "WIN_1"
-            elif goles2_real > goles1_real:
-                resultado_real = "WIN_2"
-            else:
-                resultado_real = "DRAW"
-            
-            if pred_tipo == "simple":
-                # Simple prediction: 1 point for correct winner/draw
-                pred_resultado = prediccion.get("resultado", "")
-                if pred_resultado == resultado_real:
-                    if predictor_nombre in puntos:
-                        puntos[predictor_nombre] += 1
-            else:
-                # Advanced prediction: 2 points for exact score
-                pred_goles1 = prediccion.get("goles1_pred")
-                pred_goles2 = prediccion.get("goles2_pred")
-                if pred_goles1 == goles1_real and pred_goles2 == goles2_real:
-                    if predictor_nombre in puntos:
-                        puntos[predictor_nombre] += 2
-    
-    return puntos
+# Prediction scoring removed — predictions subsystem deprecated
 
 data = load_data()
 
-# Initialize session state for registration tracking
-if "registered_predictor" not in st.session_state:
-    st.session_state.registered_predictor = None
+# (Prediction registration removed)
 
 st.markdown("<div class='title-big'>⚽ YEAR 10 FOOTBALL TOURNAMENT ⚽</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.2rem; color: #666;'>🔥 Let the battle begin! 🔥</p>", unsafe_allow_html=True)
 
 # Predictor Registration Section
-st.markdown("---")
-with st.expander("🎯 PREDICTION TABLE - Register Yourself", expanded=False):
-    # Show already registered predictors
-    if data["predictores"]:
-        st.info(f"✅ Already registered: {', '.join(data['predictores'])}")
-        
-        # Option to select from already registered predictors
-        st.write("**Select your name if already registered:**")
-        selected_predictor = st.selectbox(
-            "Select from registered names",
-            options=[""] + data["predictores"],
-            format_func=lambda x: "-- Choose your name --" if x == "" else x,
-            key="select_predictor"
-        )
-        
-        if selected_predictor:
-            if st.button("✅ Confirm Selection", use_container_width=True, type="primary"):
-                st.session_state.registered_predictor = selected_predictor
-                st.success(f"✅ You are now: **{selected_predictor}**")
-                st.rerun()
-        
-        st.divider()
-        st.write("**Or register a new name:**")
-    
-    # Check if user already registered in this session
-    if st.session_state.registered_predictor is None:
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            nuevo_predictor = st.text_input(
-                "📝 Enter your name to participate in predictions",
-                placeholder="e.g., John Doe",
-                key="nuevo_predictor"
-            )
-        
-        with col2:
-            if st.button("✅ Register New", use_container_width=True, type="primary"):
-                if nuevo_predictor.strip():
-                    if nuevo_predictor not in data["predictores"]:
-                        data["predictores"].append(nuevo_predictor)
-                        st.session_state.registered_predictor = nuevo_predictor
-                        save_data(data)
-                        st.success(f"✅ {nuevo_predictor} registered for predictions!")
-                        st.rerun()
-                    else:
-                        st.error(f"❌ '{nuevo_predictor}' is already registered! Select it from the list above.")
-                else:
-                    st.error("❌ Please enter your name")
-    else:
-        st.success(f"✅ You are logged in as: **{st.session_state.registered_predictor}**")
-        st.info("🔒 You can now make predictions with this name.")
-        
-        st.divider()
-        st.write("**Change your name:**")
-        
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            nuevo_predictor = st.text_input(
-                "📝 Enter a new name",
-                placeholder="e.g., Jane Doe",
-                key="nuevo_predictor_change"
-            )
-        
-        with col2:
-            if st.button("✅ Change Name", use_container_width=True, type="primary"):
-                if nuevo_predictor.strip():
-                    if nuevo_predictor not in data["predictores"]:
-                        # Remove old name from predictors
-                        if st.session_state.registered_predictor in data["predictores"]:
-                            data["predictores"].remove(st.session_state.registered_predictor)
-                            # Remove predictions associated with old name
-                            data["predicciones"] = [p for p in data["predicciones"] if p["predictor"] != st.session_state.registered_predictor]
-                        
-                        # Add new name
-                        data["predictores"].append(nuevo_predictor)
-                        st.session_state.registered_predictor = nuevo_predictor
-                        save_data(data)
-                        st.success(f"✅ Name changed to {nuevo_predictor}!")
-                        st.rerun()
-                    else:
-                        st.error(f"❌ '{nuevo_predictor}' is already registered! Choose a different name.")
-                else:
-                    st.error("❌ Please enter your new name")
-        
-        st.divider()
-        
-        if st.button("🚪 Switch Name"):
-            st.session_state.registered_predictor = None
-            st.rerun()
-    
-    st.divider()
-    
-    # Show prediction table with points
-    if data["predictores"]:
-        puntos = calcular_puntos_predicciones(data)
-        
-        tabla_predictores = []
-        for predictor in data["predictores"]:
-            tabla_predictores.append({
-                "🎯 Predictor": predictor,
-                "🏆 Points": puntos.get(predictor, 0)
-            })
-        
-        # Sort by points
-        tabla_predictores.sort(key=lambda x: x["🏆 Points"], reverse=True)
-        
-        df_predictores = pd.DataFrame(tabla_predictores)
-        st.dataframe(df_predictores, use_container_width=True, hide_index=True)
-    else:
-        st.info("📝 No predictors registered yet. Be the first to register!")
-
 st.markdown("---")
 
 # Initialize admin session state
@@ -431,11 +268,12 @@ elif opcion == "👥 Players":
 elif opcion == "Make your team":
     st.header("🎽 Make your team")
 
-    # Require registration
-    if st.session_state.get("registered_predictor") is None:
-        st.info("Please register a predictor name first to create a team.")
+    # Ask for a simple name to associate the team submission
+    predictor = st.text_input("Your name", key="team_creator_name")
+    if not predictor or not predictor.strip():
+        st.info("Enter your name to create a team.")
     else:
-        predictor = st.session_state.registered_predictor
+        predictor = predictor.strip()
         st.markdown(f"**Logged as:** {predictor}")
 
         st.markdown("Choose your 5-player formation (one player per position)")
@@ -697,121 +535,6 @@ elif opcion == "📅 Fixtures":
                 
                 with col4:
                     st.markdown(f"<p style='text-align: center;'>{resultado}</p>", unsafe_allow_html=True)
-                
-                # Prediction section
-                with col5:
-                    # Check if match is pending (not finished)
-                    is_match_pending = estado == "pending" or goles1 is None or goles2 is None
-                    
-                    if is_match_pending:
-                        if data["predictores"]:
-                            with st.expander("🎯 Make Prediction"):
-                                predictor = st.selectbox(
-                                    "Select your name",
-                                    options=data["predictores"],
-                                    key=f"predictor_{partido_id}"
-                                )
-                                
-                                # Check if this predictor already has a prediction for this match
-                                pred_existente = next(
-                                    (p for p in data["predicciones"] 
-                                     if p["partido_id"] == partido_id and p["predictor"] == predictor),
-                                    None
-                                )
-                                
-                                if pred_existente:
-                                    # Show existing prediction - cannot make another
-                                    st.info("✅ You already have a prediction for this match")
-                                    
-                                    if pred_existente.get("tipo") == "simple":
-                                        resultado_display = {
-                                            "WIN_1": f"🏆 WIN {equipo1_emoji} (Team 1)",
-                                            "DRAW": "🤝 DRAW",
-                                            "WIN_2": f"🏆 WIN {equipo2_emoji} (Team 2)"
-                                        }
-                                        st.write(f"**Your prediction:** {resultado_display.get(pred_existente.get('resultado'), 'Unknown')}")
-                                    else:
-                                        st.write(f"**Your prediction:** {pred_existente.get('goles1_pred', '?')} - {pred_existente.get('goles2_pred', '?')}")
-                                    
-                                    st.warning("🔒 You can only make one prediction per match. Your prediction is locked.")
-                                else:
-                                    # No prediction yet - allow to make one
-                                    # Choose prediction type
-                                    pred_type = st.radio(
-                                        "Choose prediction type:",
-                                        ["🎯 Simple (1 point for correct winner)", "📊 Advanced (2 points for exact score)"],
-                                        key=f"pred_type_{partido_id}"
-                                    )
-                                    
-                                    if "Simple" in pred_type:
-                                        # Simple prediction
-                                        resultado_pred = st.radio(
-                                            "Predict the result:",
-                                            [f"🏆 WIN {equipo1_emoji} (Team 1)", "🤝 DRAW", f"🏆 WIN {equipo2_emoji} (Team 2)"],
-                                            key=f"resultado_pred_{partido_id}"
-                                        )
-                                        
-                                        if st.button("📤 Submit Prediction", key=f"submit_pred_{partido_id}", use_container_width=True):
-                                            # Map prediction to result code
-                                            if "Team 1" in resultado_pred:
-                                                resultado_code = "WIN_1"
-                                            elif "DRAW" in resultado_pred:
-                                                resultado_code = "DRAW"
-                                            else:
-                                                resultado_code = "WIN_2"
-                                            
-                                            # Add new prediction
-                                            nueva_prediccion = {
-                                                "partido_id": partido_id,
-                                                "predictor": predictor,
-                                                "tipo": "simple",
-                                                "resultado": resultado_code
-                                            }
-                                            data["predicciones"].append(nueva_prediccion)
-                                            st.success(f"✅ Prediction registered: {resultado_pred}")
-                                            
-                                            save_data(data)
-                                            st.rerun()
-                                    else:
-                                        # Advanced prediction
-                                        pred_col1, pred_col2 = st.columns(2)
-                                        with pred_col1:
-                                            goles1_pred = st.number_input(
-                                                "Goals Team 1",
-                                                min_value=0,
-                                                max_value=20,
-                                                key=f"goles1_pred_{partido_id}"
-                                            )
-                                        with pred_col2:
-                                            goles2_pred = st.number_input(
-                                                "Goals Team 2",
-                                                min_value=0,
-                                                max_value=20,
-                                                key=f"goles2_pred_{partido_id}"
-                                            )
-                                        
-                                        if st.button("📤 Submit Prediction", key=f"submit_pred_{partido_id}", use_container_width=True):
-                                            # Add new prediction
-                                            nueva_prediccion = {
-                                                "partido_id": partido_id,
-                                                "predictor": predictor,
-                                                "tipo": "advanced",
-                                                "goles1_pred": goles1_pred,
-                                                "goles2_pred": goles2_pred
-                                            }
-                                            data["predicciones"].append(nueva_prediccion)
-                                            st.success(f"✅ Prediction registered: {goles1_pred} - {goles2_pred}")
-                                            
-                                            save_data(data)
-                                            st.rerun()
-
-
-                        else:
-                            st.caption("📝 Register in prediction table first")
-                    else:
-                        st.caption("🔒 Match finished - No predictions allowed")
-                
-                
                 st.divider()
         
         st.markdown("---")
@@ -862,120 +585,26 @@ elif opcion == "🔐 Admin":
                 st.rerun()
         
         st.markdown("---")
-        st.subheader("📊 All Predictions Dashboard")
-        
-        if not data["predicciones"]:
-            st.info("📝 No predictions registered yet")
+        st.subheader("📣 Submitted Teams")
+        if not data.get("teams"):
+            st.info("No teams submitted yet.")
         else:
-            # Create a detailed view of all predictions
-            st.markdown("### 📋 Predictions by Match")
-            
-            for partido_id_unique in sorted(set(p["partido_id"] for p in data["predicciones"])):
-                # Find the match details
-                partido = next((p for p in data["partidos"] if p.get("id") == partido_id_unique), None)
-                
-                if partido:
-                    equipo1_nombre = obtener_nombre_equipo(data, partido["equipo1_id"])
-                    equipo2_nombre = obtener_nombre_equipo(data, partido["equipo2_id"])
-                    equipo1_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo1_id"]), "⚽")
-                    equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo2_id"]), "⚽")
-                    
-                    # Get actual result if available
-                    goles1_real = partido.get("goles1")
-                    goles2_real = partido.get("goles2")
-                    
-                    if goles1_real is not None and goles2_real is not None:
-                        resultado_real = f"{goles1_real} - {goles2_real}"
-                        estado_partido = "✅ FINISHED"
-                    else:
-                        resultado_real = "? - ?"
-                        estado_partido = "⏳ PENDING"
-                    
-                    with st.expander(f"{equipo1_emoji} {equipo1_nombre} vs {equipo2_emoji} {equipo2_nombre} | {resultado_real} | {estado_partido}"):
-                        # Get all predictions for this match
-                        predicciones_partido = [p for p in data["predicciones"] if p["partido_id"] == partido_id_unique]
-                        
-                        # Create table data
-                        tabla_predicciones = []
-                        for pred in predicciones_partido:
-                            predictor = pred["predictor"]
-                            pred_tipo = pred.get("tipo", "advanced")
-                            
-                            if pred_tipo == "simple":
-                                resultado_map = {
-                                    "WIN_1": f"🏆 {equipo1_emoji} WINS",
-                                    "DRAW": "🤝 DRAW",
-                                    "WIN_2": f"🏆 {equipo2_emoji} WINS"
-                                }
-                                prediccion_display = resultado_map.get(pred.get("resultado"), "Unknown")
-                                points_possible = 1
-                            else:
-                                prediccion_display = f"{pred.get('goles1_pred', '?')} - {pred.get('goles2_pred', '?')}"
-                                points_possible = 2
-                            
-                            # Check if prediction is correct
-                            puntos_ganados = 0
-                            if goles1_real is not None and goles2_real is not None:
-                                if pred_tipo == "simple":
-                                    if goles1_real > goles2_real and pred.get("resultado") == "WIN_1":
-                                        puntos_ganados = 1
-                                    elif goles2_real > goles1_real and pred.get("resultado") == "WIN_2":
-                                        puntos_ganados = 1
-                                    elif goles1_real == goles2_real and pred.get("resultado") == "DRAW":
-                                        puntos_ganados = 1
-                                else:
-                                    if pred.get("goles1_pred") == goles1_real and pred.get("goles2_pred") == goles2_real:
-                                        puntos_ganados = 2
-                            
-                            tabla_predicciones.append({
-                                "👤 Predictor": predictor,
-                                "📝 Type": "Simple" if pred_tipo == "simple" else "Advanced",
-                                "🎯 Prediction": prediccion_display,
-                                "🏆 Points": puntos_ganados if estado_partido == "✅ FINISHED" else "⏳"
-                            })
-                        
-                        df_pred = pd.DataFrame(tabla_predicciones)
-                        st.dataframe(df_pred, use_container_width=True, hide_index=True)
-            
-            st.markdown("---")
-            st.markdown("### 📊 Predictions Summary")
-            
-            # Summary by predictor
-            resumen_predictores = []
-            for predictor in data["predictores"]:
-                predicciones_usuario = [p for p in data["predicciones"] if p["predictor"] == predictor]
-                resumen_predictores.append({
+            tabla_teams = []
+            for t in data.get("teams", []):
+                predictor = t.get("predictor")
+                seleccion = t.get("seleccion", {})
+                # Build display string
+                parts = []
+                for pos, pid in seleccion.items():
+                    name = next((p["nombre"] for p in data.get("jugadores", []) if p.get("id") == pid), "-") if pid != "" else "-"
+                    parts.append(f"{pos}: {name}")
+                tabla_teams.append({
                     "👤 Predictor": predictor,
-                    "🎯 Total Predictions": len(predicciones_usuario),
-                    "📝 Simple": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "simple"]),
-                    "📊 Advanced": len([p for p in predicciones_usuario if p.get("tipo", "advanced") == "advanced"])
+                    "🧩 Team": " | ".join(parts),
+                    "🕒 Submitted": t.get("timestamp", "")
                 })
-            
-            df_resumen_pred = pd.DataFrame(resumen_predictores)
-            st.dataframe(df_resumen_pred, use_container_width=True, hide_index=True)
-            
-            # Show saved teams
-            st.markdown("---")
-            st.subheader("📣 Submitted Teams")
-            if not data.get("teams"):
-                st.info("No teams submitted yet.")
-            else:
-                tabla_teams = []
-                for t in data.get("teams", []):
-                    predictor = t.get("predictor")
-                    seleccion = t.get("seleccion", {})
-                    # Build display string
-                    parts = []
-                    for pos, pid in seleccion.items():
-                        name = next((p["nombre"] for p in data.get("jugadores", []) if p.get("id") == pid), "-") if pid != "" else "-"
-                        parts.append(f"{pos}: {name}")
-                    tabla_teams.append({
-                        "👤 Predictor": predictor,
-                        "🧩 Team": " | ".join(parts),
-                        "🕒 Submitted": t.get("timestamp", "")
-                    })
-                df_teams = pd.DataFrame(tabla_teams)
-                st.dataframe(df_teams, use_container_width=True, hide_index=True)
+            df_teams = pd.DataFrame(tabla_teams)
+            st.dataframe(df_teams, use_container_width=True, hide_index=True)
     else:
         # No admin active - allow password entry
         st.warning("⚠️ This section requires administrator password")
