@@ -4,6 +4,91 @@ import json
 from datetime import datetime
 import os
 
+DATA_FILE = "torneo_data.json"
+
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Ensure new fields exist
+            if "predictores" not in data:
+                data["predictores"] = []
+            if "predicciones" not in data:
+                data["predicciones"] = []
+            if "admin_session" not in data:
+                data["admin_session"] = None
+            return data
+    return {
+        "equipos": [
+            {"id": 1, "nombre": "(10.1 + 10.8)", "escudo": "🦅"},
+            {"id": 2, "nombre": "(10.3 + 10.5)", "escudo": "🦁"},
+            {"id": 3, "nombre": "(10.6)", "escudo": "🐯"},
+            {"id": 4, "nombre": "(10.7)", "escudo": "🦊"},
+            {"id": 5, "nombre": "(10.9)", "escudo": "🦈"},
+            {"id": 6, "nombre": "(10.10)", "escudo": "🐻"},
+        ],
+        "jugadores": [],
+        "partidos": [],
+        "predictores": [],
+        "predicciones": [],
+        "admin_session": None
+    }
+
+def save_data(data):
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def calcular_estadisticas(data):
+    stats = {}
+    
+    for equipo in data["equipos"]:
+        stats[equipo["id"]] = {
+            "nombre": equipo["nombre"],
+            "escudo": equipo["escudo"],
+            "partidos": 0,
+            "ganados": 0,
+            "empatados": 0,
+            "perdidos": 0,
+            "goles_favor": 0,
+            "goles_contra": 0,
+            "puntos": 0
+        }
+    
+    for partido in data["partidos"]:
+        equipo1_id = partido["equipo1_id"]
+        equipo2_id = partido["equipo2_id"]
+        goles1 = partido["goles1"]
+        goles2 = partido["goles2"]
+        estado = partido.get("estado", "played")
+        
+        # Solo contar partidos jugados en estadísticas
+        if estado == "pending" or goles1 is None or goles2 is None:
+            continue
+        
+        stats[equipo1_id]["partidos"] += 1
+        stats[equipo1_id]["goles_favor"] += goles1
+        stats[equipo1_id]["goles_contra"] += goles2
+        
+        stats[equipo2_id]["partidos"] += 1
+        stats[equipo2_id]["goles_favor"] += goles2
+        stats[equipo2_id]["goles_contra"] += goles1
+        
+        if goles1 > goles2:
+            stats[equipo1_id]["ganados"] += 1
+            stats[equipo1_id]["puntos"] += 3
+            stats[equipo2_id]["perdidos"] += 1
+        elif goles2 > goles1:
+            stats[equipo2_id]["ganados"] += 1
+            stats[equipo2_id]["puntos"] += 3
+            stats[equipo1_id]["perdidos"] += 1
+        else:
+            stats[equipo1_id]["empatados"] += 1
+            stats[equipo1_id]["puntos"] += 1
+            stats[equipo2_id]["empatados"] += 1
+            stats[equipo2_id]["puntos"] += 1
+    
+    return stats
+
 def obtener_nombre_equipo(data, equipo_id):
     for equipo in data["equipos"]:
         if equipo["id"] == equipo_id:
