@@ -591,26 +591,120 @@ elif opcion == "🔐 Admin":
                 st.rerun()
         
         st.markdown("---")
-        st.subheader("📣 Submitted Teams")
-        if not data.get("teams"):
-            st.info("No teams submitted yet.")
-        else:
-            tabla_teams = []
-            for t in data.get("teams", []):
-                predictor = t.get("predictor")
-                seleccion = t.get("seleccion", {})
-                # Build display string
-                parts = []
-                for pos, pid in seleccion.items():
-                    name = next((p["nombre"] for p in data.get("jugadores", []) if p.get("id") == pid), "-") if pid != "" else "-"
-                    parts.append(f"{pos}: {name}")
-                tabla_teams.append({
-                    "👤 Predictor": predictor,
-                    "🧩 Team": " | ".join(parts),
-                    "🕒 Submitted": t.get("timestamp", "")
-                })
-            df_teams = pd.DataFrame(tabla_teams)
-            st.dataframe(df_teams, use_container_width=True, hide_index=True)
+        
+        # Admin tabs
+        admin_tab1, admin_tab2 = st.tabs(["⚽ Edit Matches", "📣 Submitted Teams"])
+        
+        with admin_tab1:
+            st.subheader("⚽ MANAGE MATCH RESULTS")
+            
+            if not data.get("partidos"):
+                st.info("No matches registered yet.")
+            else:
+                # Display all matches for editing
+                st.write("**Click on a match to edit its result:**")
+                
+                for idx, partido in enumerate(data.get("partidos", [])):
+                    col1, col2, col3, col4, col5 = st.columns([2, 1, 2, 2, 1])
+                    
+                    equipo1_nombre = obtener_nombre_equipo(data, partido["equipo1_id"])
+                    equipo2_nombre = obtener_nombre_equipo(data, partido["equipo2_id"])
+                    equipo1_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo1_id"]), "⚽")
+                    equipo2_emoji = next((e["escudo"] for e in data["equipos"] if e["id"] == partido["equipo2_id"]), "⚽")
+                    
+                    with col1:
+                        st.write(f"**{equipo1_emoji} {equipo1_nombre}**")
+                    
+                    with col2:
+                        goles1 = st.number_input(f"Goles", value=partido["goles1"] if partido["goles1"] is not None else 0, key=f"goles1_{idx}", min_value=0, step=1)
+                    
+                    with col3:
+                        st.write(f"**{equipo2_emoji} {equipo2_nombre}**")
+                    
+                    with col4:
+                        goles2 = st.number_input(f"Goles ", value=partido["goles2"] if partido["goles2"] is not None else 0, key=f"goles2_{idx}", min_value=0, step=1)
+                    
+                    with col5:
+                        if st.button("💾", key=f"save_{idx}", use_container_width=True):
+                            data["partidos"][idx]["goles1"] = goles1
+                            data["partidos"][idx]["goles2"] = goles2
+                            data["partidos"][idx]["estado"] = "played"
+                            save_data(data)
+                            st.success(f"✅ Match updated: {goles1} - {goles2}")
+                            st.rerun()
+                    
+                    st.caption(f"📅 {partido['fecha']}")
+                    st.divider()
+            
+            st.markdown("---")
+            st.subheader("➕ Add New Match")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                equipo1_new = st.selectbox(
+                    "Team 1",
+                    options=[e["id"] for e in data["equipos"]],
+                    format_func=lambda x: obtener_nombre_equipo(data, x),
+                    key="new_equipo1"
+                )
+            
+            with col2:
+                equipo2_new = st.selectbox(
+                    "Team 2",
+                    options=[e["id"] for e in data["equipos"]],
+                    format_func=lambda x: obtener_nombre_equipo(data, x),
+                    key="new_equipo2"
+                )
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                goles1_new = st.number_input("Goals Team 1", value=0, min_value=0, step=1, key="new_goles1")
+            
+            with col2:
+                goles2_new = st.number_input("Goals Team 2", value=0, min_value=0, step=1, key="new_goles2")
+            
+            with col3:
+                fecha_new = st.date_input("Date", value=None, key="new_fecha")
+            
+            if st.button("✅ Add Match", type="primary", use_container_width=True):
+                if equipo1_new == equipo2_new:
+                    st.error("❌ Teams must be different")
+                elif fecha_new is None:
+                    st.error("❌ Please select a date")
+                else:
+                    data["partidos"].append({
+                        "equipo1_id": equipo1_new,
+                        "equipo2_id": equipo2_new,
+                        "goles1": goles1_new,
+                        "goles2": goles2_new,
+                        "fecha": str(fecha_new),
+                        "estado": "played"
+                    })
+                    save_data(data)
+                    st.success(f"✅ Match added: {obtener_nombre_equipo(data, equipo1_new)} {goles1_new} - {goles2_new} {obtener_nombre_equipo(data, equipo2_new)}")
+                    st.rerun()
+        
+        with admin_tab2:
+            st.subheader("📣 Submitted Teams")
+            if not data.get("teams"):
+                st.info("No teams submitted yet.")
+            else:
+                tabla_teams = []
+                for t in data.get("teams", []):
+                    predictor = t.get("predictor")
+                    seleccion = t.get("seleccion", {})
+                    # Build display string
+                    parts = []
+                    for pos, pid in seleccion.items():
+                        name = next((p["nombre"] for p in data.get("jugadores", []) if p.get("id") == pid), "-") if pid != "" else "-"
+                        parts.append(f"{pos}: {name}")
+                    tabla_teams.append({
+                        "👤 Predictor": predictor,
+                        "🧩 Team": " | ".join(parts),
+                        "🕒 Submitted": t.get("timestamp", "")
+                    })
+                df_teams = pd.DataFrame(tabla_teams)
+                st.dataframe(df_teams, use_container_width=True, hide_index=True)
     else:
         # No admin active - allow password entry
         st.warning("⚠️ This section requires administrator password")
