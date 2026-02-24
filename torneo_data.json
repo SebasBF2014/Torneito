@@ -112,6 +112,7 @@
   ],
   "partidos": [
     {
+      "id": 1,
       "equipo1_id": 1,
       "equipo2_id": 2,
       "goles1": 0,
@@ -120,6 +121,7 @@
       "estado": "played"
     },
     {
+      "id": 2,
       "equipo1_id": 4,
       "equipo2_id": 3,
       "goles1": 3,
@@ -128,6 +130,7 @@
       "estado": "played"
     },
     {
+      "id": 3,
       "equipo1_id": 3,
       "equipo2_id": 1,
       "goles1": 2,
@@ -136,6 +139,7 @@
       "estado": "played"
     },
     {
+      "id": 4,
       "equipo1_id": 2,
       "equipo2_id": 6,
       "goles1": 2,
@@ -144,6 +148,7 @@
       "estado": "played"
     },
     {
+      "id": 5,
       "equipo1_id": 1,
       "equipo2_id": 4,
       "goles1": 1,
@@ -152,6 +157,7 @@
       "estado": "played"
     },
     {
+      "id": 6,
       "equipo1_id": 3,
       "equipo2_id": 6,
       "goles1": 0,
@@ -160,6 +166,7 @@
       "estado": "played"
     },
     {
+      "id": 7,
       "equipo1_id": 1,
       "equipo2_id": 6,
       "goles1": 0,
@@ -168,6 +175,7 @@
       "estado": "played"
     },
     {
+      "id": 8,
       "equipo1_id": 2,
       "equipo2_id": 4,
       "goles1": 0,
@@ -176,6 +184,7 @@
       "estado": "played"
     },
     {
+      "id": 9,
       "equipo1_id": 1,
       "equipo2_id": 5,
       "goles1": null,
@@ -184,6 +193,7 @@
       "estado": "pending"
     },
     {
+      "id": 10,
       "equipo1_id": 2,
       "equipo2_id": 3,
       "goles1": null,
@@ -192,6 +202,7 @@
       "estado": "pending"
     },
     {
+      "id": 11,
       "equipo1_id": 4,
       "equipo2_id": 6,
       "goles1": null,
@@ -200,6 +211,7 @@
       "estado": "pending"
     },
     {
+      "id": 12,
       "equipo1_id": 3,
       "equipo2_id": 5,
       "goles1": null,
@@ -208,6 +220,7 @@
       "estado": "pending"
     },
     {
+      "id": 13,
       "equipo1_id": 2,
       "equipo2_id": 5,
       "goles1": null,
@@ -216,6 +229,7 @@
       "estado": "pending"
     },
     {
+      "id": 14,
       "equipo1_id": 4,
       "equipo2_id": 5,
       "goles1": null,
@@ -224,6 +238,7 @@
       "estado": "pending"
     },
     {
+      "id": 15,
       "equipo1_id": 1,
       "equipo2_id": 2,
       "goles1": null,
@@ -232,6 +247,7 @@
       "estado": "pending"
     },
     {
+      "id": 16,
       "equipo1_id": 6,
       "equipo2_id": 5,
       "goles1": null,
@@ -240,6 +256,7 @@
       "estado": "pending"
     },
     {
+      "id": 17,
       "equipo1_id": 1,
       "equipo2_id": 3,
       "goles1": null,
@@ -248,6 +265,7 @@
       "estado": "pending"
     },
     {
+      "id": 18,
       "equipo1_id": 2,
       "equipo2_id": 4,
       "goles1": null,
@@ -256,6 +274,7 @@
       "estado": "pending"
     },
     {
+      "id": 19,
       "equipo1_id": 3,
       "equipo2_id": 6,
       "goles1": null,
@@ -264,6 +283,7 @@
       "estado": "pending"
     },
     {
+      "id": 20,
       "equipo1_id": 4,
       "equipo2_id": 5,
       "goles1": null,
@@ -272,6 +292,7 @@
       "estado": "pending"
     },
     {
+      "id": 21,
       "equipo1_id": 1,
       "equipo2_id": 6,
       "goles1": null,
@@ -280,6 +301,7 @@
       "estado": "pending"
     },
     {
+      "id": 22,
       "equipo1_id": 2,
       "equipo2_id": 5,
       "goles1": null,
@@ -288,6 +310,7 @@
       "estado": "pending"
     },
     {
+      "id": 23,
       "equipo1_id": 3,
       "equipo2_id": 4,
       "goles1": null,
@@ -296,6 +319,7 @@
       "estado": "pending"
     },
     {
+      "id": 24,
       "equipo1_id": 1,
       "equipo2_id": 5,
       "goles1": null,
