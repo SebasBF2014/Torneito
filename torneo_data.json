@@ -187,10 +187,10 @@
       "id": 9,
       "equipo1_id": 1,
       "equipo2_id": 5,
-      "goles1": null,
-      "goles2": null,
+      "goles1": 1,
+      "goles2": 2,
       "fecha": "2026-02-26",
-      "estado": "pending"
+      "estado": "played"
     },
     {
       "id": 10,
