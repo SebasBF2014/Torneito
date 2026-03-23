@@ -205,19 +205,19 @@
       "id": 11,
       "equipo1_id": 4,
       "equipo2_id": 6,
-      "goles1": null,
-      "goles2": null,
+      "goles1": 2,
+      "goles2": 2,
       "fecha": "2026-03-05",
-      "estado": "pending"
+      "estado": "played"
     },
     {
       "id": 12,
       "equipo1_id": 3,
       "equipo2_id": 5,
-      "goles1": null,
-      "goles2": null,
+      "goles1": 3,
+      "goles2": 2,
       "fecha": "2026-03-05",
-      "estado": "pending"
+      "estado": "played"
     },
     {
       "id": 13,
