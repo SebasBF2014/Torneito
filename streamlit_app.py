@@ -116,7 +116,7 @@ if "admin_password_entered" not in st.session_state:
 st.sidebar.markdown("### 🎮 CONTROL MENU")
 opcion = st.sidebar.radio(
     "What would you like to do?",
-    ["📊 Standings", "🏆 Teams", "👥 Players", "Make your team", "🔮 Predictions", "📋 Match History", "📅 Fixtures", "🔐 Admin"],
+    ["📊 Standings", "🏆 Teams", "👥 Players", "Make your team", "🔮 Predictions", "📋 Match History", "📅 Fixtures", "� Comments & Suggestions", "�🔐 Admin"],
     key="menu"
 )
 
@@ -567,7 +567,47 @@ elif opcion == "📅 Fixtures":
         df_resumen = pd.DataFrame(resumen)
         st.dataframe(df_resumen, use_container_width=True, hide_index=True)
 
-elif opcion == "🔐 Admin":
+elif opcion == "� Comments & Suggestions":
+    st.header("💬 COMMENTS AND SUGGESTIONS")
+    
+    if "comments" not in data:
+        data["comments"] = []
+    
+    # Display existing comments
+    st.subheader("📝 All Comments and Suggestions")
+    
+    if not data["comments"]:
+        st.info("No comments or suggestions yet. Be the first to share your feedback!")
+    else:
+        for idx, comment in enumerate(data["comments"]):
+            with st.container(border=True):
+                st.markdown(f"**{idx + 1}. {comment['name']}**")
+                st.write(comment['message'])
+                st.caption(f"📅 {comment['timestamp']}")
+    
+    st.markdown("---")
+    
+    # Add new comment form
+    st.subheader("✍️ Share Your Comment or Suggestion")
+    
+    with st.form("comment_form"):
+        name = st.text_input("Your Name", placeholder="Enter your name")
+        message = st.text_area("Your Comment or Suggestion", placeholder="Share your feedback, ideas, or suggestions...", height=150)
+        submit_button = st.form_submit_button("📤 Submit", type="primary", use_container_width=True)
+        
+        if submit_button:
+            if not name.strip() or not message.strip():
+                st.error("❌ Name and message cannot be empty.")
+            else:
+                data["comments"].append({
+                    "name": name.strip(),
+                    "message": message.strip(),
+                    "timestamp": datetime.now().isoformat()
+                })
+                save_data(data)
+                st.success("✅ Thank you! Your comment has been submitted successfully.")
+
+elif opcion == "�🔐 Admin":
     st.header("🔐 ADMIN PANEL")
     
     # Check if there's already an admin session active
@@ -593,7 +633,7 @@ elif opcion == "🔐 Admin":
         st.markdown("---")
         
         # Admin tabs
-        admin_tab1, admin_tab2, admin_tab3 = st.tabs(["⚽ Edit Matches", "📣 Submitted Teams", "💬 Comments and Suggestions"])
+        admin_tab1, admin_tab2, admin_tab3 = st.tabs(["⚽ Edit Matches", "📣 Submitted Teams", "💬 Comments & Suggestions"])
         
         with admin_tab1:
             st.subheader("⚽ MANAGE MATCH RESULTS")
@@ -708,39 +748,31 @@ elif opcion == "🔐 Admin":
     
         with admin_tab3:
             st.subheader("💬 Comments and Suggestions")
+            st.info("📌 Users submit comments through the 'Comments & Suggestions' menu option. Manage them here.")
 
             if "comments" not in data:
                 data["comments"] = []
 
-            # Display existing comments
+            # Display existing comments with delete option
             if not data["comments"]:
                 st.info("No comments or suggestions yet.")
             else:
+                st.write(f"**Total Comments: {len(data['comments'])}**")
+                st.markdown("---")
+                
                 for idx, comment in enumerate(data["comments"]):
-                    st.markdown(f"**{idx + 1}. {comment['name']}**")
-                    st.write(comment['message'])
-                    st.caption(f"📅 {comment['timestamp']}")
+                    col1, col2 = st.columns([5, 1])
+                    with col1:
+                        st.markdown(f"**{idx + 1}. {comment['name']}**")
+                        st.write(comment['message'])
+                        st.caption(f"📅 {comment['timestamp']}")
+                    with col2:
+                        if st.button("🗑️", key=f"delete_comment_{idx}", help="Delete comment"):
+                            data["comments"].pop(idx)
+                            save_data(data)
+                            st.success("✅ Comment deleted")
+                            st.rerun()
                     st.divider()
-
-            # Add new comment
-            st.markdown("---")
-            st.subheader("➕ Add a Comment or Suggestion")
-
-            name = st.text_input("Your Name", key="comment_name")
-            message = st.text_area("Your Comment or Suggestion", key="comment_message")
-
-            if st.button("Submit", type="primary"):
-                if not name.strip() or not message.strip():
-                    st.error("Name and message cannot be empty.")
-                else:
-                    data["comments"].append({
-                        "name": name.strip(),
-                        "message": message.strip(),
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    save_data(data)
-                    st.success("✅ Comment added successfully.")
-                    st.rerun()
     else:
         # No admin active - allow password entry
         st.warning("⚠️ This section requires administrator password")
