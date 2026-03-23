@@ -593,7 +593,7 @@ elif opcion == "🔐 Admin":
         st.markdown("---")
         
         # Admin tabs
-        admin_tab1, admin_tab2 = st.tabs(["⚽ Edit Matches", "📣 Submitted Teams"])
+        admin_tab1, admin_tab2, admin_tab3 = st.tabs(["⚽ Edit Matches", "📣 Submitted Teams", "💬 Comments and Suggestions"])
         
         with admin_tab1:
             st.subheader("⚽ MANAGE MATCH RESULTS")
@@ -705,6 +705,42 @@ elif opcion == "🔐 Admin":
                     })
                 df_teams = pd.DataFrame(tabla_teams)
                 st.dataframe(df_teams, use_container_width=True, hide_index=True)
+    
+        with admin_tab3:
+            st.subheader("💬 Comments and Suggestions")
+
+            if "comments" not in data:
+                data["comments"] = []
+
+            # Display existing comments
+            if not data["comments"]:
+                st.info("No comments or suggestions yet.")
+            else:
+                for idx, comment in enumerate(data["comments"]):
+                    st.markdown(f"**{idx + 1}. {comment['name']}**")
+                    st.write(comment['message'])
+                    st.caption(f"📅 {comment['timestamp']}")
+                    st.divider()
+
+            # Add new comment
+            st.markdown("---")
+            st.subheader("➕ Add a Comment or Suggestion")
+
+            name = st.text_input("Your Name", key="comment_name")
+            message = st.text_area("Your Comment or Suggestion", key="comment_message")
+
+            if st.button("Submit", type="primary"):
+                if not name.strip() or not message.strip():
+                    st.error("Name and message cannot be empty.")
+                else:
+                    data["comments"].append({
+                        "name": name.strip(),
+                        "message": message.strip(),
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    save_data(data)
+                    st.success("✅ Comment added successfully.")
+                    st.rerun()
     else:
         # No admin active - allow password entry
         st.warning("⚠️ This section requires administrator password")
